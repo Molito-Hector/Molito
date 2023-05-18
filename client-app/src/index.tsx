@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import 'semantic-ui-css/semantic.min.css';
 import 'react-calendar/dist/Calendar.css';
+import 'react-toastify/dist/ReactToastify.min.css'
 import './app/layout/styles.css';
 import reportWebVitals from './reportWebVitals';
 import { StoreContext, store } from './app/stores/store';
@@ -12,7 +13,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <StoreContext.Provider value={store}>
-    <RouterProvider router={router}/>
+    <RouterProvider router={router} />
   </StoreContext.Provider>
 );
 
