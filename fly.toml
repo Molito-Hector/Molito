@@ -1,0 +1,22 @@
+# fly.toml app configuration file generated for reactivities-hector on 2023-05-31T16:38:03-06:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "reactivities-hector"
+primary_region = "qro"
+
+[build]
+  image = "hectormolito/reactivities:latest"
+
+[env]
+  ASPNETCORE_URLS="http://+:8080"
+  Cloudinary__CloudName="dqnffrlld"
+  Cloudinary__ApiKey="486846184883468"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
