@@ -19,6 +19,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Details.Query { Id = id }));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateActivity(Activity activity)
         {

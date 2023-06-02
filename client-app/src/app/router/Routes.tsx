@@ -3,11 +3,11 @@ import App from "../layout/App";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
 import ActivityForm from "../../features/activities/form/ActivityForm";
 import ActivityDetails from "../../features/activities/details/ActivityDetails";
-import TestErrors from "../../features/errors/TestError";
 import NotFound from "../../features/errors/NotFound";
 import ServerError from "../../features/errors/ServerError";
 import ProfilePage from "../../features/profiles/ProfilePage";
 import RequireAuth from "./RequireAuth";
+import Subscription from "../layout/Subscription";
 
 export const routes: RouteObject[] = [
     {
@@ -20,14 +20,17 @@ export const routes: RouteObject[] = [
                     { path: 'activities/:id', element: <ActivityDetails /> },
                     { path: 'createActivity', element: <ActivityForm key='create' /> },
                     { path: 'manage/:id', element: <ActivityForm key='manage' /> },
-                    { path: 'profiles/:username', element: <ProfilePage /> },
-                    { path: 'errors', element: <TestErrors /> }
+                    { path: 'profiles/:username', element: <ProfilePage /> }
                 ]
             },
             { path: 'not-found', element: <NotFound /> },
             { path: '*', element: <Navigate replace to='/not-found' /> },
             { path: 'server-error', element: <ServerError /> }
         ]
+    },
+    {
+        path: '/subscribed',
+        element: <Subscription />
     }
 ]
 

@@ -6,36 +6,45 @@ namespace Persistence
     public class Seed
     {
         public static async Task SeedData(DataContext context,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            if (!roleManager.Roles.Any())
+            {
+                var adminRole = new IdentityRole
+                {
+                    Name = "Admin",
+                    NormalizedName = "Admin"
+                };
+
+                await roleManager.CreateAsync(adminRole);
+            }
+
             if (!userManager.Users.Any() && !context.Activities.Any())
             {
                 var users = new List<AppUser>
                 {
                     new AppUser
                     {
-                        DisplayName = "Bob",
+                        DisplayName = "Molito",
+                        UserName = "molito",
+                        Email = "molito@molito.ai"
+                    },
+                    new AppUser
+                    {
+                        DisplayName = "Bobby B",
                         UserName = "bob",
                         Email = "bob@test.com"
-                    },
-                    new AppUser
-                    {
-                        DisplayName = "Jane",
-                        UserName = "jane",
-                        Email = "jane@test.com"
-                    },
-                    new AppUser
-                    {
-                        DisplayName = "Tom",
-                        UserName = "tom",
-                        Email = "tom@test.com"
-                    },
+                    }
                 };
 
                 foreach (var user in users)
                 {
                     await userManager.CreateAsync(user, "Pa$$w0rd");
                 }
+
+                var adminUser = await userManager.FindByEmailAsync("molito@molito.ai");
+
+                if (adminUser != null) await userManager.AddToRoleAsync(adminUser, "Admin");
 
                 var activities = new List<Activity>
                 {
@@ -70,34 +79,7 @@ namespace Persistence
                             {
                                 AppUser = users[0],
                                 IsHost = true
-                            },
-                            new ActivityAttendee
-                            {
-                                AppUser = users[1],
-                                IsHost = false
-                            },
-                        }
-                    },
-                    new Activity
-                    {
-                        Title = "Future Activity 1",
-                        Date = DateTime.UtcNow.AddMonths(1),
-                        Description = "Activity 1 month in future",
-                        Category = "music",
-                        City = "London",
-                        Venue = "Wembly Stadium",
-                        Attendees = new List<ActivityAttendee>
-                        {
-                            new ActivityAttendee
-                            {
-                                AppUser = users[2],
-                                IsHost = true
-                            },
-                            new ActivityAttendee
-                            {
-                                AppUser = users[1],
-                                IsHost = false
-                            },
+                            }
                         }
                     },
                     new Activity
@@ -113,50 +95,6 @@ namespace Persistence
                             new ActivityAttendee
                             {
                                 AppUser = users[0],
-                                IsHost = true
-                            },
-                            new ActivityAttendee
-                            {
-                                AppUser = users[2],
-                                IsHost = false
-                            },
-                        }
-                    },
-                    new Activity
-                    {
-                        Title = "Future Activity 3",
-                        Date = DateTime.UtcNow.AddMonths(3),
-                        Description = "Activity 3 months in future",
-                        Category = "drinks",
-                        City = "London",
-                        Venue = "Pub",
-                        Attendees = new List<ActivityAttendee>
-                        {
-                            new ActivityAttendee
-                            {
-                                AppUser = users[1],
-                                IsHost = true
-                            },
-                            new ActivityAttendee
-                            {
-                                AppUser = users[0],
-                                IsHost = false
-                            },
-                        }
-                    },
-                    new Activity
-                    {
-                        Title = "Future Activity 4",
-                        Date = DateTime.UtcNow.AddMonths(4),
-                        Description = "Activity 4 months in future",
-                        Category = "culture",
-                        City = "London",
-                        Venue = "British Museum",
-                        Attendees = new List<ActivityAttendee>
-                        {
-                            new ActivityAttendee
-                            {
-                                AppUser = users[1],
                                 IsHost = true
                             }
                         }
@@ -175,34 +113,7 @@ namespace Persistence
                             {
                                 AppUser = users[0],
                                 IsHost = true
-                            },
-                            new ActivityAttendee
-                            {
-                                AppUser = users[1],
-                                IsHost = false
-                            },
-                        }
-                    },
-                    new Activity
-                    {
-                        Title = "Future Activity 6",
-                        Date = DateTime.UtcNow.AddMonths(6),
-                        Description = "Activity 6 months in future",
-                        Category = "music",
-                        City = "London",
-                        Venue = "O2 Arena",
-                        Attendees = new List<ActivityAttendee>
-                        {
-                            new ActivityAttendee
-                            {
-                                AppUser = users[2],
-                                IsHost = true
-                            },
-                            new ActivityAttendee
-                            {
-                                AppUser = users[1],
-                                IsHost = false
-                            },
+                            }
                         }
                     },
                     new Activity
@@ -219,34 +130,7 @@ namespace Persistence
                             {
                                 AppUser = users[0],
                                 IsHost = true
-                            },
-                            new ActivityAttendee
-                            {
-                                AppUser = users[2],
-                                IsHost = false
-                            },
-                        }
-                    },
-                    new Activity
-                    {
-                        Title = "Future Activity 8",
-                        Date = DateTime.UtcNow.AddMonths(8),
-                        Description = "Activity 8 months in future",
-                        Category = "drinks",
-                        City = "London",
-                        Venue = "Pub",
-                        Attendees = new List<ActivityAttendee>
-                        {
-                            new ActivityAttendee
-                            {
-                                AppUser = users[2],
-                                IsHost = true
-                            },
-                            new ActivityAttendee
-                            {
-                                AppUser = users[1],
-                                IsHost = false
-                            },
+                            }
                         }
                     }
                 };

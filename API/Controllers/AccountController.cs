@@ -40,7 +40,7 @@ namespace API.Controllers
             return Unauthorized();
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
@@ -90,7 +90,8 @@ namespace API.Controllers
                 DisplayName = user.DisplayName,
                 Image = user?.Photos?.FirstOrDefault(x => x.IsMain)?.Url,
                 Token = _tokenService.CreateToken(user),
-                Username = user.UserName
+                Username = user.UserName,
+                Roles = (ICollection<string>)_userManager.GetRolesAsync(user).Result
             };
         }
     }

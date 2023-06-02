@@ -3,14 +3,14 @@ WORKDIR /app
 EXPOSE 8080
 
 # copy.csproj and restore as distinct layers
-COPY "Reactivities.sln" "Reactivities.sln"
+COPY "MolitoNews.sln" "MolitoNews.sln"
 COPY "API/API.csproj" "API/API.csproj"
 COPY "Application/Application.csproj" "Application/Application.csproj"
 COPY "Persistence/Persistence.csproj" "Persistence/Persistence.csproj"
 COPY "Domain/Domain.csproj" "Domain/Domain.csproj"
 COPY "Infrastructure/Infrastructure.csproj" "Infrastructure/Infrastructure.csproj"
 
-RUN dotnet restore "Reactivities.sln"
+RUN dotnet restore "MolitoNews.sln"
 
 # copy everything else and build
 COPY . .
