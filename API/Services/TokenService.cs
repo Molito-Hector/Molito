@@ -10,7 +10,6 @@ namespace API.Services
     public class TokenService
     {
         private readonly IConfiguration _config;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<AppUser> _userManager;
         public TokenService(IConfiguration config, UserManager<AppUser> userManager)
         {

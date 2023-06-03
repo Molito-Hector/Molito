@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/e40056c3-cbf7-417a-92fd-5a008798ab86/resourceGroups/appsvc_windows_centralus_basic/providers/Microsoft.Web/sites/molito-news",
+    "appService.deploySubpath": "bin\\Publish"
+}
