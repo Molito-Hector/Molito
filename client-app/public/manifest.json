@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Molito News",
+  "name": "Get news and updates about Molito AIDE",
   "icons": [
     {
       "src": "favicon.ico",
