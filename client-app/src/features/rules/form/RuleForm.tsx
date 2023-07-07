@@ -9,6 +9,7 @@ import { Formik, Form } from "formik";
 import * as Yup from 'yup';
 import MyTextInput from "../../../app/common/form/MyTextInput";
 import { RuleFormValues } from "../../../app/models/rule";
+import { ConditionForm } from "./ConditionForm";
 
 export default observer(function RuleForm() {
     const { ruleStore } = useStore();
@@ -18,10 +19,19 @@ export default observer(function RuleForm() {
 
     const [rule, setRule] = useState<RuleFormValues>(new RuleFormValues());
 
+    const subConditionSchema = Yup.object().shape({
+        field: Yup.string().required('Condition field is required'),
+        operator: Yup.string().required('Condition operator is required'),
+        value: Yup.string().required('Condition value is required'),
+        logicalOperator: Yup.string(),
+    });
+
     const conditionSchema = Yup.object().shape({
         field: Yup.string().required('Condition field is required'),
         operator: Yup.string().required('Condition operator is required'),
         value: Yup.string().required('Condition value is required'),
+        logicalOperator: Yup.string().required(),
+        subConditions: Yup.array().of(subConditionSchema),
     });
 
     const actionSchema = Yup.object().shape({
@@ -67,12 +77,30 @@ export default observer(function RuleForm() {
 
                         {values.conditions.map((_condition, i) => (
                             <div key={i}>
-                                <MyTextInput placeholder='Condition Field' name={`conditions[${i}].field`} />
-                                <MyTextInput placeholder='Condition Operator' name={`conditions[${i}].operator`} />
-                                <MyTextInput placeholder='Condition Value' name={`conditions[${i}].value`} />
+                                <ConditionForm name={`conditions[${i}]`} />
+                                {_condition.subConditions?.map((_subCondition, j) => (
+                                    <div key={j}>
+                                        <ConditionForm name={`conditions[${i}].subConditions[${j}]`} />
+                                    </div>
+                                ))}
+                                <Button
+                                    type="button"
+                                    onClick={() =>
+                                        setFieldValue(`conditions[${i}].subConditions`, [
+                                            ...values.conditions[i].subConditions!,
+                                            { field: "", operator: "", value: "", logicalOperator: "" },
+                                        ])
+                                    }
+                                >
+                                    Add Sub-Condition
+                                </Button>
                             </div>
                         ))}
-                        <Button type='button' onClick={() => setFieldValue('conditions', [...values.conditions, { field: '', operator: '', value: '' }])}>Add Condition</Button>
+                        <Button
+                            type='button'
+                            onClick={() => setFieldValue('conditions', [...values.conditions, { field: '', operator: '', value: '', logicalOperator: '', subConditions: [] }])}>
+                                Add Condition
+                        </Button>
 
                         {values.actions.map((_action, i) => (
                             <div key={i}>

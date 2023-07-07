@@ -151,7 +151,19 @@ export default class RuleStore {
 
     createRule = async (rule: RuleFormValues) => {
         try {
-            await agent.Rules.create(rule);
+            const ruleToCreate = {
+                ...rule,
+                conditions: rule.conditions.map(c => ({
+                    ...c,
+                    logicalOperator: c.logicalOperator,
+                    subConditions: c.subConditions?.map(sub => ({
+                        ...sub,
+                        logicalOperator: sub.logicalOperator
+                    }))
+                })),
+                actions: rule.actions.map(a => ({ ...a })),
+            };
+            await agent.Rules.create(ruleToCreate);
             const newRule = new Rule(rule);
             this.setRule(newRule);
             runInAction(() => {
@@ -164,7 +176,19 @@ export default class RuleStore {
 
     updateRule = async (rule: RuleFormValues) => {
         try {
-            await agent.Rules.update(rule);
+            const ruleToUpdate = {
+                ...rule,
+                conditions: rule.conditions.map(c => ({
+                    ...c,
+                    logicalOperator: c.logicalOperator,
+                    subConditions: c.subConditions?.map(sub => ({
+                        ...sub,
+                        logicalOperator: sub.logicalOperator
+                    }))
+                })),
+                actions: rule.actions.map(a => ({ ...a })),
+            };
+            await agent.Rules.update(ruleToUpdate);
             runInAction(() => {
                 if (rule.id) {
                     let updatedRule = { ...this.getRule(rule.id), ...rule }

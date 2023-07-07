@@ -14,6 +14,8 @@ namespace Domain
         public string Field { get; set; }
         public string Operator { get; set; }
         public string Value { get; set; }
+        public string LogicalOperator { get; set; }
+        public List<ConditionDto> SubConditions { get; set; }
     }
 
     public class ActionDto

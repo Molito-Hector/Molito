@@ -16,14 +16,11 @@ namespace Application.Core
                 .ForMember(d => d.HostUsername, o => o.MapFrom(s => s.Attendees.FirstOrDefault(x => x.IsHost).AppUser.UserName));
             CreateMap<Rule, Rule>();
             CreateMap<Rule, RuleDto>();
-            CreateMap<Condition, ConditionDto>()
-                .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
-                .ForMember(d => d.Field, o => o.MapFrom(s => s.Field))
-                .ForMember(d => d.Operator, o => o.MapFrom(s => s.Operator))
-                .ForMember(d => d.Value, o => o.MapFrom(s => s.Value));
+            CreateMap<Condition, ConditionDto>();
+            CreateMap<ConditionDto, Condition>();
             CreateMap<Domain.Action, ActionDto>()
-                .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
-                .ForMember(d => d.Name, o => o.MapFrom(s => s.Name));
+                 .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
+                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name));
             CreateMap<ActivityAttendee, AttendeeDto>()
                 .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.AppUser.DisplayName))
                 .ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser.UserName))

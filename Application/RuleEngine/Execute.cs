@@ -5,6 +5,7 @@ using AutoMapper.QueryableExtensions;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using Persistence;
 
 namespace Application.RuleEngine
@@ -14,7 +15,7 @@ namespace Application.RuleEngine
         public class Command : IRequest<Result<bool>>
         {
             public Guid Id { get; set; }
-            public IDictionary<string, object> Data { get; set; }
+            public JObject Data { get; set; }
         }
 
         public class Handler : IRequestHandler<Command, Result<bool>>

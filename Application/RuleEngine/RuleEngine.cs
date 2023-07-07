@@ -1,20 +1,29 @@
 using Application.Interfaces;
+using AutoMapper;
 using Domain;
+using Newtonsoft.Json.Linq;
 
 namespace Application.RuleEngine
 {
     public class RuleEngine : IRuleEngine
     {
-        public bool ExecuteRule(RuleDto rule, IDictionary<string, object> data)
+        private readonly IMapper _mapper;
+        public RuleEngine(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+        public bool ExecuteRule(RuleDto rule, JObject data)
         {
             if (rule == null)
             {
                 return false;
             }
 
-            foreach (var condition in rule.Conditions)
+            foreach (var conditiondto in rule.Conditions)
             {
-                if (!ConditionIsMet(condition, data))
+                Condition condition = _mapper.Map<Condition>(conditiondto);
+
+                if (!EvaluateCondition(condition, data))
                 {
                     return false;
                 }
@@ -28,19 +37,41 @@ namespace Application.RuleEngine
             return true;
         }
 
-        private bool ConditionIsMet(ConditionDto condition, IDictionary<string, object> data)
+        public bool EvaluateCondition(Condition condition, JObject inputData)
         {
-            // Check condition against data here
-            // For simplicity, let's assume your conditions only check for equality
-            if (data.TryGetValue(condition.Field, out var fieldValue))
+            if (condition.SubConditions.Count > 0)
             {
-                return fieldValue.ToString() == condition.Value;
+                var results = condition.SubConditions.Select(subCondition => EvaluateCondition(subCondition, inputData));
+                return condition.LogicalOperator.ToLower() == "and" ? results.All(x => x) : results.Any(x => x);
             }
 
-            return false;
+            var fieldInData = inputData[condition.Field];
+
+            if (fieldInData == null)
+            {
+                throw new Exception($"Field {condition.Field} not found in input data.");
+            }
+
+            switch (condition.Operator)
+            {
+                case ">":
+                    return Convert.ToDouble(fieldInData) > Convert.ToDouble(condition.Value);
+                case "<":
+                    return Convert.ToDouble(fieldInData) < Convert.ToDouble(condition.Value);
+                case ">=":
+                    return Convert.ToDouble(fieldInData) >= Convert.ToDouble(condition.Value);
+                case "<=":
+                    return Convert.ToDouble(fieldInData) <= Convert.ToDouble(condition.Value);
+                case "==":
+                    return fieldInData.ToString() == condition.Value;
+                case "!=":
+                    return fieldInData.ToString() != condition.Value;
+                default:
+                    throw new Exception($"Invalid operator {condition.Operator}");
+            }
         }
 
-        private void PerformAction(ActionDto action, IDictionary<string, object> data)
+        private void PerformAction(ActionDto action, JObject data)
         {
             Console.WriteLine($"Performing action: {action.Name}");
         }

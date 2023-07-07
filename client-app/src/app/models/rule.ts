@@ -10,6 +10,8 @@ export interface Condition {
     field: string;
     operator: string;
     value: string;
+    logicalOperator?: string;
+    subConditions?: Condition[];
 }
 
 export interface Action {
@@ -26,7 +28,7 @@ export class Rule implements Rule {
 export class RuleFormValues {
     id?: string = undefined;
     name: string = '';
-    conditions: Condition[] = [];
+    conditions: Condition[] = [{ field: '', operator: '', value: '', logicalOperator: '', subConditions: [] }];;
     actions: Action[] = [];
 
     constructor(rule?: RuleFormValues) {

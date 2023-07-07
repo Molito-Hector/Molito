@@ -64,6 +64,11 @@ namespace Persistence
                     .HasForeignKey(o => o.TargetId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            builder.Entity<Condition>()
+                .HasMany(c => c.SubConditions)
+                .WithOne(c => c.ParentCondition)
+                .HasForeignKey(c => c.ParentConditionId);
         }
     }
 }

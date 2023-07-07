@@ -34,6 +34,8 @@ namespace Application.Rules
                     .ProjectTo<RuleDto>(_mapper.ConfigurationProvider, new { currentUsername = _userAccessor.GetUsername() })
                     .FirstOrDefaultAsync(x => x.Id == request.Id);
 
+                if (rule == null) return null;
+
                 return Result<RuleDto>.Success(rule);
             }
         }

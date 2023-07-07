@@ -39,8 +39,7 @@ namespace Application.Rules
 
                 foreach (var condition in request.Rule.Conditions)
                 {
-                    condition.RuleId = rule.Id;
-                    _context.Conditions.Add(condition);
+                    AddConditionToContext(condition, rule.Id);
                 }
 
                 foreach (var action in request.Rule.Actions)
@@ -56,6 +55,20 @@ namespace Application.Rules
                 if (!result) return Result<Unit>.Failure("Failed to create rule");
 
                 return Result<Unit>.Success(Unit.Value);
+            }
+
+            private void AddConditionToContext(Condition condition, Guid ruleId)
+            {
+                condition.RuleId = ruleId;
+                _context.Conditions.Add(condition);
+
+                if (condition.SubConditions != null)
+                {
+                    foreach (var subCondition in condition.SubConditions)
+                    {
+                        AddConditionToContext(subCondition, ruleId);
+                    }
+                }
             }
         }
     }

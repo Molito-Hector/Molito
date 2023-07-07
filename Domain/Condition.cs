@@ -6,6 +6,10 @@ namespace Domain
         public string Field { get; set; }
         public string Operator { get; set; }
         public string Value { get; set; }
+        public string LogicalOperator { get; set; }
+        public Guid? ParentConditionId { get; set; }
+        public Condition ParentCondition { get; set; }
+        public ICollection<Condition> SubConditions { get; set; }
         public Guid RuleId { get; set; }
         public Rule Rule { get; set; }
     }

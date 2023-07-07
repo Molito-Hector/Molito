@@ -46,6 +46,7 @@ namespace API.Extensions
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
             services.AddScoped<IRuleEngine, RuleEngine>();
             services.AddSignalR();
+            services.AddControllers().AddNewtonsoftJson();
 
             return services;
         }
