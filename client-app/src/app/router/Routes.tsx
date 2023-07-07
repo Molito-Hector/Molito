@@ -7,7 +7,11 @@ import NotFound from "../../features/errors/NotFound";
 import ServerError from "../../features/errors/ServerError";
 import ProfilePage from "../../features/profiles/ProfilePage";
 import RequireAuth from "./RequireAuth";
-import Subscription from "../layout/Subscription";
+import Privacy from "../../features/subsctiptions/Privacy";
+import SubscriptionPage from "../../features/subsctiptions/SubscriptionPage";
+import RuleDashboard from "../../features/rules/dashboard/RuleDashboard";
+import RuleDetails from "../../features/rules/details/RuleDetails";
+import RuleForm from "../../features/rules/form/RuleForm";
 
 export const routes: RouteObject[] = [
     {
@@ -20,7 +24,10 @@ export const routes: RouteObject[] = [
                     { path: 'activities/:id', element: <ActivityDetails /> },
                     { path: 'createActivity', element: <ActivityForm key='create' /> },
                     { path: 'manage/:id', element: <ActivityForm key='manage' /> },
-                    { path: 'profiles/:username', element: <ProfilePage /> }
+                    { path: 'profiles/:username', element: <ProfilePage /> },
+                    { path: 'rules', element: <RuleDashboard /> },
+                    { path: 'rules/:id', element: <RuleDetails /> },
+                    { path: 'createRule', element: <RuleForm key='create' /> }
                 ]
             },
             { path: 'not-found', element: <NotFound /> },
@@ -29,8 +36,12 @@ export const routes: RouteObject[] = [
         ]
     },
     {
-        path: '/subscribed',
-        element: <Subscription />
+        path: '/subscription',
+        element: <SubscriptionPage />
+    },
+    {
+        path: '/privacy',
+        element: <Privacy />
     }
 ]
 

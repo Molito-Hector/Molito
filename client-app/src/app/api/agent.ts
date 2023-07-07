@@ -6,6 +6,7 @@ import { store } from "../stores/store";
 import { User, UserFormValues } from "../models/user";
 import { Photo, Profile, UserActivity } from "../models/profile";
 import { PaginatedResult } from "../models/pagination";
+import { Rule, RuleFormValues } from "../models/rule";
 
 const sleep = (delay: number) => {
     return new Promise((resolve) => {
@@ -82,9 +83,18 @@ const Activities = {
     attend: (id: string) => requests.post<void>(`/activities/${id}/attend`, {})
 }
 
+const Rules = {
+    list: (params: URLSearchParams) => axios.get<PaginatedResult<Rule[]>>('/rules', { params }).then(responseBody),
+    details: (id: string) => requests.get<Rule>(`/rules/${id}`),
+    create: (rule: RuleFormValues) => requests.post<void>('/rules', rule),
+    update: (rule: RuleFormValues) => requests.put<void>(`/rules/${rule.id}`, rule),
+    delete: (id: string) => requests.del<void>(`/rules/${id}`)
+}
+
 const Account = {
     current: () => requests.get<User>('/account'),
-    login: (user: UserFormValues) => requests.post<User>('/account/login', user)
+    login: (user: UserFormValues) => requests.post<User>('/account/login', user),
+    register: (user: UserFormValues) => requests.post<User>('/account/register', user)
 }
 
 const Profiles = {
@@ -107,7 +117,8 @@ const Profiles = {
 const agent = {
     Activities,
     Account,
-    Profiles
+    Profiles,
+    Rules
 }
 
 export default agent;

@@ -12,10 +12,10 @@ export default observer(function NavBar() {
                     <img src="/assets/logo.png" alt="logo" style={{ marginRight: '10px' }} />
                     Molito
                 </Menu.Item>
-                <Menu.Item as={NavLink} to='/activities' name='Activities' />
+                <Menu.Item as={NavLink} to='/rules' name='Rules' />
                 {user?.roles.includes("Admin") &&
                     <Menu.Item>
-                        <Button as={NavLink} to='/createActivity' positive content='Create Activity' />
+                        <Button as={NavLink} to='/createRule' positive content='Create Rule' />
                     </Menu.Item>}
                 <Menu.Item position='right'>
                     <Image src={user?.image || '/assets/user.png'} avatar spaced='right' />

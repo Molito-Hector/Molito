@@ -11,10 +11,10 @@ export default class CommentStore {
         makeAutoObservable(this);
     }
 
-    createHubConnection = (activityId: string) => {
-        if (store.activityStore.selectedActivity) {
+    createHubConnection = (ruleId: string) => {
+        if (store.ruleStore.selectedRule) {
             this.hubConnection = new HubConnectionBuilder()
-                .withUrl(process.env.REACT_APP_CHAT_URL + '?activityId=' + activityId, {
+                .withUrl(process.env.REACT_APP_CHAT_URL + '?ruleId=' + ruleId, {
                     accessTokenFactory: () => store.userStore.user?.token!
                 })
                 .withAutomaticReconnect()
@@ -51,7 +51,7 @@ export default class CommentStore {
     }
 
     addComment = async (values: any) => {
-        values.activityId = store.activityStore.selectedActivity?.id;
+        values.ruleId = store.ruleStore.selectedRule?.id;
         try {
             await this.hubConnection?.invoke('SendComment', values);
         } catch (error) {

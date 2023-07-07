@@ -11,6 +11,9 @@ namespace Persistence
         }
 
         public DbSet<Activity> Activities { get; set; }
+        public DbSet<Rule> Rules { get; set; }
+        public DbSet<Condition> Conditions { get; set; }
+        public DbSet<Domain.Action> Actions { get; set; }
         public DbSet<ActivityAttendee> ActivityAttendees { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -32,8 +35,18 @@ namespace Persistence
                 .WithMany(a => a.Attendees)
                 .HasForeignKey(aa => aa.ActivityId);
 
+            builder.Entity<Condition>()
+                .HasOne(u => u.Rule)
+                .WithMany(a => a.Conditions)
+                .HasForeignKey(aa => aa.RuleId);
+
+            builder.Entity<Domain.Action>()
+                .HasOne(u => u.Rule)
+                .WithMany(a => a.Actions)
+                .HasForeignKey(aa => aa.RuleId);
+
             builder.Entity<Comment>()
-                .HasOne(a => a.Activity)
+                .HasOne(a => a.Rule)
                 .WithMany(c => c.Comments)
                 .OnDelete(DeleteBehavior.Cascade);
 

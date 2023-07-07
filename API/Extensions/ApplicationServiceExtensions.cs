@@ -1,6 +1,7 @@
 using Application.Activities;
 using Application.Core;
 using Application.Interfaces;
+using Application.RuleEngine;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure.Photos;
@@ -21,7 +22,7 @@ namespace API.Extensions
             {
                 var connStr = config.GetConnectionString("DefaultConnection");
 
-                options.UseNpgsql(connStr);
+                options.UseSqlite(connStr);
             });
 
             services.AddCors(opt =>
@@ -43,6 +44,7 @@ namespace API.Extensions
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+            services.AddScoped<IRuleEngine, RuleEngine>();
             services.AddSignalR();
 
             return services;
