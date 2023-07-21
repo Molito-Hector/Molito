@@ -37,6 +37,11 @@ namespace Application.Rules
                     Name = request.Rule.Name,
                 };
 
+                foreach (var property in request.Rule.Properties)
+                {
+                    AddPropertyToContext(property, rule.Id);
+                }
+
                 foreach (var condition in request.Rule.Conditions)
                 {
                     AddConditionToContext(condition, rule.Id);
@@ -67,6 +72,21 @@ namespace Application.Rules
                     foreach (var subCondition in condition.SubConditions)
                     {
                         AddConditionToContext(subCondition, ruleId);
+                    }
+                }
+            }
+
+            private void AddPropertyToContext(RuleProperty property, Guid ruleId)
+            {
+                property.RuleId = ruleId;
+                _context.RuleProperties.Add(property);
+
+                if (property.SubProperties != null)
+                {
+                    foreach (var subProperty in property.SubProperties)
+                    {
+                        subProperty.Direction = property.Direction;
+                        AddPropertyToContext(subProperty, ruleId);
                     }
                 }
             }

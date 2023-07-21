@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -10,9 +11,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230720193114_InitialProperties")]
+    partial class InitialProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
@@ -268,7 +271,7 @@ namespace Persistence.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("ParentPropertyId")
+                    b.Property<Guid>("ParentPropertyId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("RuleId")
@@ -506,8 +509,10 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.RuleProperty", b =>
                 {
                     b.HasOne("Domain.RuleProperty", "ParentProperty")
-                        .WithMany("SubProperties")
-                        .HasForeignKey("ParentPropertyId");
+                        .WithMany("Subproperties")
+                        .HasForeignKey("ParentPropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Domain.Rule", "Rule")
                         .WithMany("Properties")
@@ -626,7 +631,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.RuleProperty", b =>
                 {
-                    b.Navigation("SubProperties");
+                    b.Navigation("Subproperties");
                 });
 #pragma warning restore 612, 618
         }

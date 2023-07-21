@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Grid, Loader } from "semantic-ui-react";
 import { useStore } from "../../../app/stores/store";
 import { observer } from "mobx-react-lite";
-import ActivityFilters from "./ActivityFilters";
 import { PagingParams } from "../../../app/models/pagination";
 import InfiniteScroll from "react-infinite-scroller";
 import RuleListItemPlaceholder from "./RuleListItemPlaceholder";
@@ -26,7 +25,7 @@ export default observer(function RuleDashboard() {
 
     return (
         <Grid>
-            <Grid.Column width='10'>
+            <Grid.Column width='16'>
                 {ruleStore.loadingInitial && !loadingNext ? (
                     <>
                         <RuleListItemPlaceholder />
@@ -42,9 +41,6 @@ export default observer(function RuleDashboard() {
                         <RuleList />
                     </InfiniteScroll>
                 )}
-            </Grid.Column>
-            <Grid.Column width='6'>
-                <ActivityFilters />
             </Grid.Column>
             <Grid.Column width={10}>
                 <Loader active={loadingNext} />

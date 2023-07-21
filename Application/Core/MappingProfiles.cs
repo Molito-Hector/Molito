@@ -15,9 +15,21 @@ namespace Application.Core
             CreateMap<Activity, ActivityDto>()
                 .ForMember(d => d.HostUsername, o => o.MapFrom(s => s.Attendees.FirstOrDefault(x => x.IsHost).AppUser.UserName));
             CreateMap<Rule, Rule>();
-            CreateMap<Rule, RuleDto>();
+            CreateMap<Rule, RuleDto>()
+                .ForMember(d => d.Conditions, o => o.MapFrom(s => s.Conditions.Where(c => c.ParentConditionId == null)))
+                .ForMember(d => d.Properties, o => o.MapFrom(s => s.Properties.Where(c => c.ParentPropertyId == null)));
             CreateMap<Condition, ConditionDto>();
             CreateMap<ConditionDto, Condition>();
+            CreateMap<Condition, SubConditionDto>();
+            CreateMap<SubConditionDto, Condition>();
+            CreateMap<RuleProperty, RulePropertyDto>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()));
+
+            CreateMap<RuleProperty, SubpropertyDto>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()));
+
+            CreateMap<RulePropertyDto, RuleProperty>();
+            CreateMap<SubpropertyDto, RuleProperty>();
             CreateMap<Domain.Action, ActionDto>()
                  .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
                  .ForMember(d => d.Name, o => o.MapFrom(s => s.Name));

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -10,9 +11,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230712194020_CompoundPlusPlus")]
+    partial class CompoundPlusPlus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
@@ -256,36 +259,6 @@ namespace Persistence.Migrations
                     b.ToTable("Rules");
                 });
 
-            modelBuilder.Entity("Domain.RuleProperty", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<char>("Direction")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("ParentPropertyId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("RuleId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentPropertyId");
-
-                    b.HasIndex("RuleId");
-
-                    b.ToTable("RuleProperties");
-                });
-
             modelBuilder.Entity("Domain.UserFollowing", b =>
                 {
                     b.Property<string>("ObserverId")
@@ -503,23 +476,6 @@ namespace Persistence.Migrations
                         .HasForeignKey("AppUserId");
                 });
 
-            modelBuilder.Entity("Domain.RuleProperty", b =>
-                {
-                    b.HasOne("Domain.RuleProperty", "ParentProperty")
-                        .WithMany("SubProperties")
-                        .HasForeignKey("ParentPropertyId");
-
-                    b.HasOne("Domain.Rule", "Rule")
-                        .WithMany("Properties")
-                        .HasForeignKey("RuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParentProperty");
-
-                    b.Navigation("Rule");
-                });
-
             modelBuilder.Entity("Domain.UserFollowing", b =>
                 {
                     b.HasOne("Domain.AppUser", "Observer")
@@ -620,13 +576,6 @@ namespace Persistence.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Conditions");
-
-                    b.Navigation("Properties");
-                });
-
-            modelBuilder.Entity("Domain.RuleProperty", b =>
-                {
-                    b.Navigation("SubProperties");
                 });
 #pragma warning restore 612, 618
         }

@@ -42,7 +42,7 @@ namespace Application.RuleEngine
 
                 var result = _ruleEngine.ExecuteRule(rule, request.Data);
 
-                return Result<bool>.Success(result);
+                return result;
             }
         }
     }

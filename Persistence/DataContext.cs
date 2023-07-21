@@ -12,6 +12,7 @@ namespace Persistence
 
         public DbSet<Activity> Activities { get; set; }
         public DbSet<Rule> Rules { get; set; }
+        public DbSet<RuleProperty> RuleProperties { get; set; }
         public DbSet<Condition> Conditions { get; set; }
         public DbSet<Domain.Action> Actions { get; set; }
         public DbSet<ActivityAttendee> ActivityAttendees { get; set; }
@@ -40,6 +41,21 @@ namespace Persistence
                 .WithMany(a => a.Conditions)
                 .HasForeignKey(aa => aa.RuleId);
 
+            builder.Entity<Condition>()
+                .HasMany(c => c.SubConditions)
+                .WithOne(c => c.ParentCondition)
+                .HasForeignKey(c => c.ParentConditionId);
+
+            builder.Entity<RuleProperty>()
+                .HasOne(u => u.Rule)
+                .WithMany(a => a.Properties)
+                .HasForeignKey(aa => aa.RuleId);
+
+            builder.Entity<RuleProperty>()
+                .HasMany(c => c.SubProperties)
+                .WithOne(c => c.ParentProperty)
+                .HasForeignKey(c => c.ParentPropertyId);
+
             builder.Entity<Domain.Action>()
                 .HasOne(u => u.Rule)
                 .WithMany(a => a.Actions)
@@ -64,11 +80,6 @@ namespace Persistence
                     .HasForeignKey(o => o.TargetId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
-
-            builder.Entity<Condition>()
-                .HasMany(c => c.SubConditions)
-                .WithOne(c => c.ParentCondition)
-                .HasForeignKey(c => c.ParentConditionId);
         }
     }
 }
