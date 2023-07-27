@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite";
 import { useParams } from "react-router-dom";
 import RuleDetailedInfo from "./RuleDetailedInfo";
 import RuleDetailedChat from "./RuleDetailedChat";
+import RuleDetailedHeader from "./RuleDetailedHeader";
 
 export default observer(function RuleDetails() {
 
@@ -23,6 +24,7 @@ export default observer(function RuleDetails() {
     return (
         <Grid>
             <Grid.Column width={16}>
+                <RuleDetailedHeader />
                 <RuleDetailedInfo rule={rule} />
                 <RuleDetailedChat ruleId={rule.id} />
             </Grid.Column>

@@ -6,6 +6,6 @@ namespace Application.Interfaces
 {
     public interface IRuleEngine
     {
-        Result<bool> ExecuteRule(RuleDto rule, JObject data);
+        Result<JObject> ExecuteRule(RuleDto rule, JObject data);
     }
 }

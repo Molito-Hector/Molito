@@ -2,6 +2,7 @@ using Application.Core;
 using Application.Interfaces;
 using AutoMapper;
 using Domain;
+using MathNet.Symbolics;
 using Newtonsoft.Json.Linq;
 
 namespace Application.RuleEngine
@@ -13,35 +14,47 @@ namespace Application.RuleEngine
         {
             _mapper = mapper;
         }
-        public Result<bool> ExecuteRule(RuleDto rule, JObject data)
+        public Result<JObject> ExecuteRule(RuleDto rule, JObject data)
         {
             if (rule == null)
             {
-                return Result<bool>.Failure("Rule not found or not provided");
+                return Result<JObject>.Failure("Rule not found or not provided");
             }
 
             var validatedData = ValidateInputData(rule, data);
-            if (!validatedData.IsSuccess) return Result<bool>.Failure(validatedData.Error);
+            if (!validatedData.IsSuccess) return Result<JObject>.Failure(validatedData.Error);
 
             foreach (var conditiondto in rule.Conditions)
             {
                 Condition condition = _mapper.Map<Condition>(conditiondto);
 
                 var evaluation = EvaluateCondition(condition, validatedData.Value);
-                if (!evaluation.IsSuccess) return Result<bool>.Failure(evaluation.Error);
+                if (!evaluation.IsSuccess) return Result<JObject>.Failure(evaluation.Error);
 
                 if (!evaluation.Value)
                 {
-                    return Result<bool>.Success(false);
+                    return Result<JObject>.Success(data);
                 }
             }
 
+            var outputData = BuildOutputData(rule, validatedData.Value);
+
+            // foreach (var property in rule.Properties.Where(rp => rp.Direction == "O" || rp.Direction == "B"))
+            // {
+            //     RuleProperty currentProperty = _mapper.Map<RuleProperty>(property);
+            //     var value = validatedData.Value.ContainsKey(currentProperty.Name)
+            //         ? validatedData.Value[currentProperty.Name]
+            //         : GetDefaultValue(currentProperty.Type);
+            //     outputData[currentProperty.Name] = JToken.FromObject(value);
+            // }
+
             foreach (var action in rule.Actions)
             {
-                PerformAction(action, data);
+                var result = PerformAction2(action, validatedData.Value, outputData);
+                if (!result.IsSuccess) return Result<JObject>.Failure(result.Error);
             }
 
-            return Result<bool>.Success(true);
+            return Result<JObject>.Success(outputData);
         }
 
         private Result<bool> EvaluateCondition(Condition condition, Dictionary<string, object> inputData)
@@ -76,9 +89,125 @@ namespace Application.RuleEngine
             }
         }
 
-        private void PerformAction(ActionDto action, JObject data)
+        private Result<JObject> PerformAction(ActionDto action, JObject data)
         {
-            Console.WriteLine($"Performing action: {action.Name}");
+            if (!string.IsNullOrEmpty(action.TargetProperty))
+            {
+                JToken targetToken = data.SelectToken(action.TargetProperty);
+
+                if (targetToken == null)
+                {
+                    return Result<JObject>.Failure($"Target field {action.TargetProperty} not found in data.");
+                }
+
+                try
+                {
+                    switch (action.ModificationType)
+                    {
+                        case ModType.Set:
+                            if (targetToken.Type == JTokenType.String)
+                            {
+                                targetToken.Replace(action.ModificationValue);
+                            }
+                            else if (targetToken.Type == JTokenType.Float)
+                            {
+                                targetToken.Replace(Convert.ToDouble(action.ModificationValue));
+                            }
+                            break;
+                        case ModType.Add:
+                        case ModType.Subtract:
+                        case ModType.Multiply:
+                        case ModType.Divide:
+                            double targetValue = targetToken.Value<double>();
+                            double modificationValue = double.Parse(action.ModificationValue);
+
+                            switch (action.ModificationType)
+                            {
+                                case ModType.Add:
+                                    targetValue += modificationValue;
+                                    break;
+                                case ModType.Subtract:
+                                    targetValue -= modificationValue;
+                                    break;
+                                case ModType.Multiply:
+                                    targetValue *= modificationValue;
+                                    break;
+                                case ModType.Divide:
+                                    targetValue /= modificationValue;
+                                    break;
+                            }
+
+                            if (targetToken.Type == JTokenType.Float)
+                            {
+                                targetToken.Replace(Convert.ToDouble(targetValue));
+                            }
+                            else
+                            {
+                                targetToken.Replace(targetValue);
+                            }
+                            break;
+                        case ModType.Expression:
+                            var variables = new Dictionary<string, FloatingPoint>();
+
+                            var start = action.ModificationValue.IndexOf('{');
+                            var end = action.ModificationValue.IndexOf('}');
+                            var propertyName = action.ModificationValue.Substring(start + 1, end - start - 1);
+
+                            var expressionValue = action.ModificationValue.Replace("{" + propertyName + "}", propertyName);
+
+                            var token = data.SelectToken(propertyName);
+                            double propertyValue;
+                            if (token != null && token.Type == JTokenType.Float)
+                            {
+                                propertyValue = token.Value<double>();
+                            }
+                            else
+                            {
+                                propertyValue = 1.5;
+                            }
+
+                            variables.Add(propertyName, propertyValue);
+
+                            Expression e;
+
+                            try
+                            {
+                                e = Infix.ParseOrThrow(expressionValue);
+                            }
+                            catch (Exception ex)
+                            {
+                                return Result<JObject>.Failure($"Invalid modification value: {ex.Message}");
+                            }
+
+                            double result = Evaluate.Evaluate(variables, e).RealValue;
+                            targetToken.Replace(JToken.FromObject(result));
+
+                            break;
+                        case ModType.Append:
+                        case ModType.Prepend:
+                            if (targetToken.Type == JTokenType.String)
+                            {
+                                targetToken.Replace(
+                                    action.ModificationType == ModType.Append
+                                        ? ((string)targetToken + action.ModificationValue)
+                                        : (action.ModificationValue + (string)targetToken));
+                            }
+                            else
+                            {
+                                return Result<JObject>.Failure($"Invalid operation {action.ModificationType} on non-string type.");
+                            }
+                            break;
+                        default:
+                            return Result<JObject>.Failure($"Invalid modification type {action.ModificationType}.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Result<JObject>.Failure($"Error while modifying field {action.TargetProperty}: {ex.Message}");
+                }
+            }
+
+            return Result<JObject>.Success(data);
         }
 
         private Result<Dictionary<string, object>> ValidateInputData(RuleDto rule, JObject inputData)
@@ -113,12 +242,12 @@ namespace Application.RuleEngine
                     }
                     return Result<object>.Success(token.Value<string>());
 
-                case PropertyType.IntegerType:
-                    if (token.Type != JTokenType.Integer)
+                case PropertyType.NumberType:
+                    if (token.Type != JTokenType.Float)
                     {
-                        return Result<object>.Failure($"Expected Integer but got {token.Type}");
+                        return Result<object>.Failure($"Expected Decimal Number but got {token.Type}");
                     }
-                    return Result<object>.Success(token.Value<int>());
+                    return Result<object>.Success(token.Value<double>());
 
                 case PropertyType.BooleanType:
                     if (token.Type != JTokenType.Boolean)
@@ -159,7 +288,7 @@ namespace Application.RuleEngine
 
         private Result<object> GetValueFromDataInput(Dictionary<string, object> dataInput, string field)
         {
-            var properties = field.Split('.');
+            var properties = field.Split('_');
 
             object currentObject = dataInput;
 
@@ -177,6 +306,189 @@ namespace Application.RuleEngine
             }
 
             return Result<object>.Success(currentObject);
+        }
+
+        private Result<JObject> PerformAction2(ActionDto action, Dictionary<string, object> inputData, JObject outputObject)
+        {
+            if (!string.IsNullOrEmpty(action.TargetProperty))
+            {
+                string jsonPath = action.TargetProperty.Replace("_", ".");
+                JToken targetToken = outputObject.SelectToken(jsonPath);
+
+                if (targetToken == null)
+                {
+                    return Result<JObject>.Failure($"Target field {action.TargetProperty} not found in data.");
+                }
+
+                try
+                {
+                    switch (action.ModificationType)
+                    {
+                        case ModType.Set:
+                            if (targetToken.Type == JTokenType.String)
+                            {
+                                targetToken.Replace(action.ModificationValue);
+                            }
+                            else if (targetToken.Type == JTokenType.Float)
+                            {
+                                targetToken.Replace(Convert.ToDouble(action.ModificationValue));
+                            }
+                            break;
+                        case ModType.Add:
+                        case ModType.Subtract:
+                        case ModType.Multiply:
+                        case ModType.Divide:
+                            double targetValue = targetToken.Value<double>();
+                            double modificationValue = double.Parse(action.ModificationValue);
+
+                            switch (action.ModificationType)
+                            {
+                                case ModType.Add:
+                                    targetValue += modificationValue;
+                                    break;
+                                case ModType.Subtract:
+                                    targetValue -= modificationValue;
+                                    break;
+                                case ModType.Multiply:
+                                    targetValue *= modificationValue;
+                                    break;
+                                case ModType.Divide:
+                                    targetValue /= modificationValue;
+                                    break;
+                            }
+
+                            if (targetToken.Type == JTokenType.Float)
+                            {
+                                targetToken.Replace(Convert.ToDouble(targetValue));
+                            }
+                            else
+                            {
+                                targetToken.Replace(targetValue);
+                            }
+                            break;
+                        case ModType.Expression:
+                            var variables = new Dictionary<string, FloatingPoint>();
+
+                            var start = action.ModificationValue.IndexOf('{');
+                            var end = action.ModificationValue.IndexOf('}');
+                            var propertyName = action.ModificationValue.Substring(start + 1, end - start - 1);
+
+                            var valueRetrieval = GetValueFromDataInput(inputData, propertyName);
+                            if (!valueRetrieval.IsSuccess) return Result<JObject>.Failure(valueRetrieval.Error);
+
+                            var propertyValue = (double)valueRetrieval.Value;
+
+                            var expressionValue = action.ModificationValue.Replace("{" + propertyName + "}", propertyName);
+
+                            variables.Add(propertyName, propertyValue);
+
+                            Expression e;
+
+                            try
+                            {
+                                e = Infix.ParseOrThrow(expressionValue);
+                            }
+                            catch (Exception ex)
+                            {
+                                return Result<JObject>.Failure($"Invalid modification value: {ex.Message}");
+                            }
+
+                            double result = Evaluate.Evaluate(variables, e).RealValue;
+                            targetToken.Replace(JToken.FromObject(result));
+
+                            break;
+                        case ModType.Append:
+                        case ModType.Prepend:
+                            if (targetToken.Type == JTokenType.String)
+                            {
+                                targetToken.Replace(
+                                    action.ModificationType == ModType.Append
+                                        ? ((string)targetToken + action.ModificationValue)
+                                        : (action.ModificationValue + (string)targetToken));
+                            }
+                            else
+                            {
+                                return Result<JObject>.Failure($"Invalid operation {action.ModificationType} on non-string type.");
+                            }
+                            break;
+                        default:
+                            return Result<JObject>.Failure($"Invalid modification type {action.ModificationType}.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Result<JObject>.Failure($"Error while modifying field {action.TargetProperty}: {ex.Message}");
+                }
+            }
+
+            return Result<JObject>.Success(JObject.FromObject(inputData));
+        }
+
+        private JObject BuildOutputData(RuleDto rule, Dictionary<string, object> validatedData)
+        {
+            var outputData = new JObject();
+
+            foreach (var property in rule.Properties.Where(rp => rp.Direction == "O" || rp.Direction == "B"))
+            {
+                RuleProperty currentProperty = _mapper.Map<RuleProperty>(property);
+
+                if (currentProperty.Type == PropertyType.ObjectType && currentProperty.SubProperties.Count > 0)
+                {
+                    outputData[currentProperty.Name] = BuildNestedOutputData(currentProperty, validatedData);
+                }
+                else
+                {
+                    var value = validatedData.ContainsKey(currentProperty.Name)
+                        ? validatedData[currentProperty.Name]
+                        : GetDefaultValue(currentProperty.Type);
+                    outputData[currentProperty.Name] = JToken.FromObject(value);
+                }
+            }
+
+            return outputData;
+        }
+
+        private JObject BuildNestedOutputData(RuleProperty currentProperty, Dictionary<string, object> validatedData)
+        {
+            var outputData = new JObject();
+            string propertyNamePrefix = currentProperty.Name + "_";
+
+            foreach (var subProperty in currentProperty.SubProperties)
+            {
+                RuleProperty currentSubProperty = _mapper.Map<RuleProperty>(subProperty);
+
+                string fullPropertyName = propertyNamePrefix + currentSubProperty.Name;
+                if (currentSubProperty.Type == PropertyType.ObjectType && currentSubProperty.SubProperties.Count > 0)
+                {
+                    outputData[currentSubProperty.Name] = BuildNestedOutputData(currentSubProperty, validatedData);
+                }
+                else
+                {
+                    var value = validatedData.ContainsKey(fullPropertyName)
+                        ? validatedData[fullPropertyName]
+                        : GetDefaultValue(currentSubProperty.Type);
+                    outputData[currentSubProperty.Name] = JToken.FromObject(value);
+                }
+            }
+
+            return outputData;
+        }
+
+        private object GetDefaultValue(PropertyType type)
+        {
+            switch (type)
+            {
+                case PropertyType.StringType:
+                    return string.Empty;
+                case PropertyType.NumberType:
+                    return 0.0;
+                case PropertyType.BooleanType:
+                    return false;
+                case PropertyType.ObjectType:
+                    return new JObject();
+                default:
+                    throw new ArgumentException($"Invalid property type: {type}");
+            }
         }
     }
 }

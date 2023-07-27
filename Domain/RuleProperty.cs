@@ -3,7 +3,7 @@ namespace Domain
     public enum PropertyType
     {
         StringType,
-        IntegerType,
+        NumberType,
         BooleanType,
         ObjectType
     }

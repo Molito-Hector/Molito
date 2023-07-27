@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Header, Segment } from "semantic-ui-react";
+import { Accordion, Button, FormField, Header, Segment } from "semantic-ui-react";
 import { useStore } from "../../../app/stores/store";
 import { observer } from "mobx-react-lite";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -16,6 +16,12 @@ export default observer(function RuleForm() {
     const { createRule, updateRule, loadRule, loadingInitial } = ruleStore;
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const propertyTypes = [
+        { key: 'type1', text: 'Type 1', value: 'Type1' },
+        { key: 'type2', text: 'Type 2', value: 'Type2' },
+        // ...other property types...
+    ];
 
     const [rule, setRule] = useState<RuleFormValues>(new RuleFormValues());
 
@@ -73,33 +79,41 @@ export default observer(function RuleForm() {
                 onSubmit={values => handleFormSubmit(values)}>
                 {({ handleSubmit, isValid, isSubmitting, dirty, values, setFieldValue }) => (
                     <Form className='ui form' onSubmit={handleSubmit} autoComplete='off'>
-                        <MyTextInput name='name' placeholder='Name' />
+                        <FormField>
+                            <label>Rule Name</label>
+                            <MyTextInput name='name' placeholder='Name' />
+                        </FormField>
 
-                        {values.conditions.map((_condition, i) => (
-                            <div key={i}>
-                                <ConditionForm name={`conditions[${i}]`} />
-                                {_condition.subConditions?.map((_subCondition, j) => (
-                                    <div key={j}>
-                                        <ConditionForm name={`conditions[${i}].subConditions[${j}]`} />
-                                    </div>
-                                ))}
-                                <Button
-                                    type="button"
-                                    onClick={() =>
-                                        setFieldValue(`conditions[${i}].subConditions`, [
-                                            ...values.conditions[i].subConditions!,
-                                            { field: "", operator: "", value: "", logicalOperator: "" },
-                                        ])
-                                    }
-                                >
-                                    Add Sub-Condition
-                                </Button>
-                            </div>
-                        ))}
+                        <Accordion styled fluid>
+                            {values.conditions.map((_condition, i) => (
+                                <div key={i}>
+                                    <Accordion.Title>{`Condition ${i + 1}`}</Accordion.Title>
+                                    <Accordion.Content>
+                                        <ConditionForm name={`conditions[${i}]`} />
+                                        {_condition.subConditions?.map((_subCondition, j) => (
+                                            <div key={j}>
+                                                <ConditionForm name={`conditions[${i}].subConditions[${j}]`} />
+                                            </div>
+                                        ))}
+                                        <Button
+                                            type="button"
+                                            onClick={() =>
+                                                setFieldValue(`conditions[${i}].subConditions`, [
+                                                    ...values.conditions[i].subConditions!,
+                                                    { field: "", operator: "", value: "", logicalOperator: "" },
+                                                ])
+                                            }
+                                        >
+                                            Add Sub-Condition
+                                        </Button>
+                                    </Accordion.Content>
+                                </div>
+                            ))}
+                        </Accordion>
                         <Button
                             type='button'
                             onClick={() => setFieldValue('conditions', [...values.conditions, { field: '', operator: '', value: '', logicalOperator: '', subConditions: [] }])}>
-                                Add Condition
+                            Add Condition
                         </Button>
 
                         {values.actions.map((_action, i) => (
