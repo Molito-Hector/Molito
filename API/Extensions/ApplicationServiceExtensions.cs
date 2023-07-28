@@ -1,6 +1,7 @@
 using Application.Activities;
 using Application.Core;
 using Application.Interfaces;
+using Application.Interfaces.Strategies;
 using Application.RuleEngine;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -45,6 +46,16 @@ namespace API.Extensions
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
             services.AddScoped<IRuleEngine, RuleEngine>();
+            services.AddScoped<IEngineFunctions, EngineFunctions>();
+            services.AddScoped<IActionStrategy, SetActionStrategy>();
+            services.AddScoped<IActionStrategy, AppendActionStrategy>();
+            services.AddScoped<IActionStrategy, PrependActionStrategy>();
+            services.AddScoped<IActionStrategy, AddActionStrategy>();
+            services.AddScoped<IActionStrategy, SubtractActionStrategy>();
+            services.AddScoped<IActionStrategy, MultiplyActionStrategy>();
+            services.AddScoped<IActionStrategy, DivideActionStrategy>();
+            services.AddScoped<IActionStrategy, ExpressionActionStrategy>();
+            services.AddScoped<ActionStrategyFactory>();
             services.AddSignalR();
             services.AddControllers().AddNewtonsoftJson();
 
