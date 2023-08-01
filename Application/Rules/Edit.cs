@@ -34,18 +34,18 @@ namespace Application.Rules
             {
                 var rule = await _context.Rules
                     .Include(r => r.Conditions)
-                    .Include(r => r.Actions)
+                    // .Include(r => r.Actions)
                     .FirstOrDefaultAsync(r => r.Id == request.Rule.Id);
 
                 if (rule == null) return null;
 
                 rule.Name = request.Rule.Name;
 
-                _context.RuleProperties.RemoveRange(rule.Properties);
-                foreach (var property in request.Rule.Properties)
-                {
-                    AddPropertyToContext(property, rule.Id);
-                }
+                // _context.RuleProperties.RemoveRange(rule.Properties);
+                // foreach (var property in request.Rule.Properties)
+                // {
+                //     AddPropertyToContext(property, rule.Id);
+                // }
 
                 _context.Conditions.RemoveRange(rule.Conditions);
                 foreach (var condition in request.Rule.Conditions)
@@ -53,12 +53,12 @@ namespace Application.Rules
                     AddConditionToContext(condition, rule.Id);
                 }
 
-                _context.Actions.RemoveRange(rule.Actions);
-                foreach (var action in request.Rule.Actions)
-                {
-                    action.RuleId = rule.Id;
-                    _context.Actions.Add(action);
-                }
+                // _context.Actions.RemoveRange(rule.Actions);
+                // foreach (var action in request.Rule.Actions)
+                // {
+                //     action.RuleId = rule.Id;
+                //     _context.Actions.Add(action);
+                // }
 
                 var result = await _context.SaveChangesAsync() > 0;
 
@@ -81,20 +81,20 @@ namespace Application.Rules
                 }
             }
 
-            private void AddPropertyToContext(RuleProperty property, Guid ruleId)
-            {
-                property.RuleId = ruleId;
-                _context.RuleProperties.Add(property);
+            // private void AddPropertyToContext(RuleProperty property, Guid ruleId)
+            // {
+            //     property.RuleId = ruleId;
+            //     _context.RuleProperties.Add(property);
 
-                if (property.SubProperties != null)
-                {
-                    foreach (var subProperty in property.SubProperties)
-                    {
-                        subProperty.Direction = property.Direction;
-                        AddPropertyToContext(subProperty, ruleId);
-                    }
-                }
-            }
+            //     if (property.SubProperties != null)
+            //     {
+            //         foreach (var subProperty in property.SubProperties)
+            //         {
+            //             subProperty.Direction = property.Direction;
+            //             AddPropertyToContext(subProperty, ruleId);
+            //         }
+            //     }
+            // }
         }
     }
 }

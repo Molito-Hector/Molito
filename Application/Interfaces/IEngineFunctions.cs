@@ -6,8 +6,8 @@ namespace Application.Interfaces
 {
     public interface IEngineFunctions
     {
-        public Result<Dictionary<string, object>> ValidateInputData(RuleDto rule, JObject inputData);
+        public Result<Dictionary<string, object>> ValidateInputData(RuleWithProjectDto rule, JObject inputData);
         public Result<object> GetValueFromDataInput(Dictionary<string, object> dataInput, string field);
-        public JObject BuildOutputData(RuleDto rule, Dictionary<string, object> validatedData);
+        public JObject BuildOutputData(RuleWithProjectDto rule, Dictionary<string, object> validatedData);
     }
 }

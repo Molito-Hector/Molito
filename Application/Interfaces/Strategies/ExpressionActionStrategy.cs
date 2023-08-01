@@ -54,7 +54,7 @@ namespace Application.Interfaces.Strategies
                     {
                         break;
                     }
-                    start = action.ModificationValue.IndexOf('{', end + 1);
+                    start = action.ModificationValue.IndexOf('{', end);
                 }
 
                 Expression e;

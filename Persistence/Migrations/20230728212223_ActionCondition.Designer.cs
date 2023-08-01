@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -10,9 +11,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230728212223_ActionCondition")]
+    partial class ActionCondition
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
@@ -24,9 +27,6 @@ namespace Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ConditionId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DecisionRowId")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("ModificationType")
@@ -44,8 +44,6 @@ namespace Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ConditionId");
-
-                    b.HasIndex("DecisionRowId");
 
                     b.ToTable("Actions");
                 });
@@ -188,13 +186,7 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("DecisionTableId")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid?>("RuleId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("RuleProjectId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -203,11 +195,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("DecisionTableId");
-
                     b.HasIndex("RuleId");
-
-                    b.HasIndex("RuleProjectId");
 
                     b.ToTable("Comments");
                 });
@@ -216,9 +204,6 @@ namespace Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DecisionRowId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Field")
@@ -241,57 +226,11 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DecisionRowId");
-
                     b.HasIndex("ParentConditionId");
 
                     b.HasIndex("RuleId");
 
                     b.ToTable("Conditions");
-                });
-
-            modelBuilder.Entity("Domain.DecisionRow", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("TableId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TableId");
-
-                    b.ToTable("DecisionRows");
-                });
-
-            modelBuilder.Entity("Domain.DecisionTable", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("EvaluationType")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("RuleProjectId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RuleProjectId");
-
-                    b.ToTable("DecisionTables");
                 });
 
             modelBuilder.Entity("Domain.Photo", b =>
@@ -330,61 +269,15 @@ namespace Persistence.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("RuleProjectId")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("RuleProjectId");
 
                     b.ToTable("Rules");
-                });
-
-            modelBuilder.Entity("Domain.RuleProject", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RuleProjects");
-                });
-
-            modelBuilder.Entity("Domain.RuleProjectMember", b =>
-                {
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("RuleProjectId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsOwner")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("AppUserId", "RuleProjectId");
-
-                    b.HasIndex("RuleProjectId");
-
-                    b.ToTable("RuleProjectMembers");
                 });
 
             modelBuilder.Entity("Domain.RuleProperty", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DecisionTableId")
                         .HasColumnType("TEXT");
 
                     b.Property<char>("Direction")
@@ -396,7 +289,7 @@ namespace Persistence.Migrations
                     b.Property<Guid?>("ParentPropertyId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("ProjectId")
+                    b.Property<Guid>("RuleId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
@@ -404,11 +297,9 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DecisionTableId");
-
                     b.HasIndex("ParentPropertyId");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("RuleId");
 
                     b.ToTable("RuleProperties");
                 });
@@ -564,10 +455,6 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.DecisionRow", null)
-                        .WithMany("Actions")
-                        .HasForeignKey("DecisionRowId");
-
                     b.Navigation("Condition");
                 });
 
@@ -600,18 +487,10 @@ namespace Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("AuthorId");
 
-                    b.HasOne("Domain.DecisionTable", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("DecisionTableId");
-
                     b.HasOne("Domain.Rule", "Rule")
                         .WithMany("Comments")
                         .HasForeignKey("RuleId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Domain.RuleProject", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("RuleProjectId");
 
                     b.Navigation("Author");
 
@@ -620,10 +499,6 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Condition", b =>
                 {
-                    b.HasOne("Domain.DecisionRow", null)
-                        .WithMany("Conditions")
-                        .HasForeignKey("DecisionRowId");
-
                     b.HasOne("Domain.Condition", "ParentCondition")
                         .WithMany("SubConditions")
                         .HasForeignKey("ParentConditionId");
@@ -639,28 +514,6 @@ namespace Persistence.Migrations
                     b.Navigation("Rule");
                 });
 
-            modelBuilder.Entity("Domain.DecisionRow", b =>
-                {
-                    b.HasOne("Domain.DecisionTable", "DecisionTable")
-                        .WithMany("Rows")
-                        .HasForeignKey("TableId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DecisionTable");
-                });
-
-            modelBuilder.Entity("Domain.DecisionTable", b =>
-                {
-                    b.HasOne("Domain.RuleProject", "RuleProject")
-                        .WithMany("DecisionTables")
-                        .HasForeignKey("RuleProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RuleProject");
-                });
-
             modelBuilder.Entity("Domain.Photo", b =>
                 {
                     b.HasOne("Domain.AppUser", null)
@@ -668,55 +521,21 @@ namespace Persistence.Migrations
                         .HasForeignKey("AppUserId");
                 });
 
-            modelBuilder.Entity("Domain.Rule", b =>
-                {
-                    b.HasOne("Domain.RuleProject", "RuleProject")
-                        .WithMany("StandardRules")
-                        .HasForeignKey("RuleProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RuleProject");
-                });
-
-            modelBuilder.Entity("Domain.RuleProjectMember", b =>
-                {
-                    b.HasOne("Domain.AppUser", "AppUser")
-                        .WithMany("RuleProjects")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.RuleProject", "RuleProject")
-                        .WithMany("Members")
-                        .HasForeignKey("RuleProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("RuleProject");
-                });
-
             modelBuilder.Entity("Domain.RuleProperty", b =>
                 {
-                    b.HasOne("Domain.DecisionTable", null)
-                        .WithMany("Properties")
-                        .HasForeignKey("DecisionTableId");
-
                     b.HasOne("Domain.RuleProperty", "ParentProperty")
                         .WithMany("SubProperties")
                         .HasForeignKey("ParentPropertyId");
 
-                    b.HasOne("Domain.RuleProject", "RuleProject")
+                    b.HasOne("Domain.Rule", "Rule")
                         .WithMany("Properties")
-                        .HasForeignKey("ProjectId")
+                        .HasForeignKey("RuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ParentProperty");
 
-                    b.Navigation("RuleProject");
+                    b.Navigation("Rule");
                 });
 
             modelBuilder.Entity("Domain.UserFollowing", b =>
@@ -805,8 +624,6 @@ namespace Persistence.Migrations
                     b.Navigation("Followings");
 
                     b.Navigation("Photos");
-
-                    b.Navigation("RuleProjects");
                 });
 
             modelBuilder.Entity("Domain.Condition", b =>
@@ -816,40 +633,13 @@ namespace Persistence.Migrations
                     b.Navigation("SubConditions");
                 });
 
-            modelBuilder.Entity("Domain.DecisionRow", b =>
-                {
-                    b.Navigation("Actions");
-
-                    b.Navigation("Conditions");
-                });
-
-            modelBuilder.Entity("Domain.DecisionTable", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("Properties");
-
-                    b.Navigation("Rows");
-                });
-
             modelBuilder.Entity("Domain.Rule", b =>
                 {
                     b.Navigation("Comments");
 
                     b.Navigation("Conditions");
-                });
-
-            modelBuilder.Entity("Domain.RuleProject", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("DecisionTables");
-
-                    b.Navigation("Members");
 
                     b.Navigation("Properties");
-
-                    b.Navigation("StandardRules");
                 });
 
             modelBuilder.Entity("Domain.RuleProperty", b =>

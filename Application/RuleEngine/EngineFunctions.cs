@@ -14,11 +14,11 @@ namespace Application.RuleEngine
             _mapper = mapper;
         }
 
-        public Result<Dictionary<string, object>> ValidateInputData(RuleDto rule, JObject inputData)
+        public Result<Dictionary<string, object>> ValidateInputData(RuleWithProjectDto rule, JObject inputData)
         {
             var validatedData = new Dictionary<string, object>();
 
-            foreach (var inputProperty in rule.Properties.Where(x => x.Direction == "I" || x.Direction == "B"))
+            foreach (var inputProperty in rule.RuleProject.Properties.Where(x => x.Direction == "I" || x.Direction == "B"))
             {
                 JToken token;
                 if (!inputData.TryGetValue(inputProperty.Name, out token))
@@ -112,11 +112,11 @@ namespace Application.RuleEngine
             return Result<object>.Success(currentObject);
         }
 
-        public JObject BuildOutputData(RuleDto rule, Dictionary<string, object> validatedData)
+        public JObject BuildOutputData(RuleWithProjectDto rule, Dictionary<string, object> validatedData)
         {
             var outputData = new JObject();
 
-            foreach (var property in rule.Properties.Where(rp => rp.Direction == "O" || rp.Direction == "B"))
+            foreach (var property in rule.RuleProject.Properties.Where(rp => rp.Direction == "O" || rp.Direction == "B"))
             {
                 RuleProperty currentProperty = _mapper.Map<RuleProperty>(property);
 

@@ -18,7 +18,7 @@ namespace Domain
         public string TargetProperty { get; set; }
         public ModType? ModificationType { get; set; }
         public string ModificationValue { get; set; }
-        public Guid RuleId { get; set; }
-        public Rule Rule { get; set; }
+        public Guid ConditionId { get; set; }
+        public Condition Condition { get; set; }
     }
 }

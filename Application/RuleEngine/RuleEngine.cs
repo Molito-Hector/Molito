@@ -18,7 +18,7 @@ namespace Application.RuleEngine
             _mapper = mapper;
             _engineFunctions = engineFunctions;
         }
-        public Result<JObject> ExecuteRule(RuleDto rule, JObject data)
+        public Result<JObject> ExecuteRule(RuleWithProjectDto rule, JObject data)
         {
             if (rule == null)
             {
@@ -27,6 +27,8 @@ namespace Application.RuleEngine
 
             var validatedData = _engineFunctions.ValidateInputData(rule, data);
             if (!validatedData.IsSuccess) return Result<JObject>.Failure(validatedData.Error);
+
+            var outputData = _engineFunctions.BuildOutputData(rule, validatedData.Value);
 
             foreach (var conditiondto in rule.Conditions)
             {
@@ -40,14 +42,13 @@ namespace Application.RuleEngine
                     data.Add("Molito Message", "Execution ended without triggering a condition");
                     return Result<JObject>.Success(data);
                 }
-            }
 
-            var outputData = _engineFunctions.BuildOutputData(rule, validatedData.Value);
-
-            foreach (var action in rule.Actions)
-            {
-                var result = PerformAction(action, validatedData.Value, outputData);
-                if (!result.IsSuccess) return Result<JObject>.Failure(result.Error);
+                foreach (var action in condition.Actions)
+                {
+                    ActionDto actionDto = _mapper.Map<ActionDto>(action);
+                    var result = PerformAction(actionDto, validatedData.Value, outputData);
+                    if (!result.IsSuccess) return Result<JObject>.Failure(result.Error);
+                }
             }
 
             return Result<JObject>.Success(outputData);

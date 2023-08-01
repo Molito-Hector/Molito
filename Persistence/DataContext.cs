@@ -11,10 +11,14 @@ namespace Persistence
         }
 
         public DbSet<Activity> Activities { get; set; }
-        public DbSet<Rule> Rules { get; set; }
+        public DbSet<RuleProject> RuleProjects { get; set; }
         public DbSet<RuleProperty> RuleProperties { get; set; }
+        public DbSet<Rule> Rules { get; set; }
+        public DbSet<DecisionTable> DecisionTables { get; set; }
+        public DbSet<DecisionRow> DecisionRows { get; set; }
         public DbSet<Condition> Conditions { get; set; }
         public DbSet<Domain.Action> Actions { get; set; }
+        public DbSet<RuleProjectMember> RuleProjectMembers { get; set; }
         public DbSet<ActivityAttendee> ActivityAttendees { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -25,6 +29,7 @@ namespace Persistence
             base.OnModelCreating(builder);
 
             builder.Entity<ActivityAttendee>(x => x.HasKey(aa => new { aa.AppUserId, aa.ActivityId }));
+            builder.Entity<RuleProjectMember>(x => x.HasKey(aa => new { aa.AppUserId, aa.RuleProjectId }));
 
             builder.Entity<ActivityAttendee>()
                 .HasOne(u => u.AppUser)
@@ -35,6 +40,31 @@ namespace Persistence
                 .HasOne(u => u.Activity)
                 .WithMany(a => a.Attendees)
                 .HasForeignKey(aa => aa.ActivityId);
+
+            builder.Entity<RuleProjectMember>()
+                .HasOne(u => u.AppUser)
+                .WithMany(a => a.RuleProjects)
+                .HasForeignKey(aa => aa.AppUserId);
+
+            builder.Entity<RuleProjectMember>()
+                .HasOne(u => u.RuleProject)
+                .WithMany(a => a.Members)
+                .HasForeignKey(aa => aa.RuleProjectId);
+
+            builder.Entity<Rule>()
+                .HasOne(u => u.RuleProject)
+                .WithMany(a => a.StandardRules)
+                .HasForeignKey(aa => aa.RuleProjectId);
+
+            builder.Entity<DecisionTable>()
+                .HasOne(u => u.RuleProject)
+                .WithMany(a => a.DecisionTables)
+                .HasForeignKey(aa => aa.RuleProjectId);
+
+            builder.Entity<DecisionRow>()
+                .HasOne(u => u.DecisionTable)
+                .WithMany(a => a.Rows)
+                .HasForeignKey(aa => aa.TableId);
 
             builder.Entity<Condition>()
                 .HasOne(u => u.Rule)
@@ -47,9 +77,9 @@ namespace Persistence
                 .HasForeignKey(c => c.ParentConditionId);
 
             builder.Entity<RuleProperty>()
-                .HasOne(u => u.Rule)
+                .HasOne(u => u.RuleProject)
                 .WithMany(a => a.Properties)
-                .HasForeignKey(aa => aa.RuleId);
+                .HasForeignKey(aa => aa.ProjectId);
 
             builder.Entity<RuleProperty>()
                 .HasMany(c => c.SubProperties)
@@ -57,9 +87,9 @@ namespace Persistence
                 .HasForeignKey(c => c.ParentPropertyId);
 
             builder.Entity<Domain.Action>()
-                .HasOne(u => u.Rule)
+                .HasOne(u => u.Condition)
                 .WithMany(a => a.Actions)
-                .HasForeignKey(aa => aa.RuleId);
+                .HasForeignKey(aa => aa.ConditionId);
 
             builder.Entity<Comment>()
                 .HasOne(a => a.Rule)

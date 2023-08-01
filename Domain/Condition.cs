@@ -10,6 +10,7 @@ namespace Domain
         public Guid? ParentConditionId { get; set; }
         public Condition ParentCondition { get; set; }
         public ICollection<Condition> SubConditions { get; set; }
+        public ICollection<Action> Actions { get; set; }
         public Guid RuleId { get; set; }
         public Rule Rule { get; set; }
     }

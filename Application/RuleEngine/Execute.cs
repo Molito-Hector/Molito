@@ -35,7 +35,7 @@ namespace Application.RuleEngine
             public async Task<Result<JObject>> Handle(Command request, CancellationToken cancellationToken)
             {
                 var rule = await _context.Rules
-                    .ProjectTo<RuleDto>(_mapper.ConfigurationProvider, new { currentUsername = _userAccessor.GetUsername() })
+                    .ProjectTo<RuleWithProjectDto>(_mapper.ConfigurationProvider, new { currentUsername = _userAccessor.GetUsername() })
                     .FirstOrDefaultAsync(x => x.Id == request.Id);
 
                 if (rule == null) return null;

@@ -31,27 +31,39 @@ namespace Application.Rules
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var rule = new Rule
-                {
-                    Id = request.Rule.Id,
-                    Name = request.Rule.Name,
+                var project = new RuleProject{
+                    Id = request.Rule.RuleProject.Id,
+                    Name = request.Rule.RuleProject.Name,
+                    Description = request.Rule.RuleProject.Description
                 };
 
-                foreach (var property in request.Rule.Properties)
+                _context.RuleProjects.Add(project);
+                await _context.SaveChangesAsync();                
+
+                var rule = new Rule
                 {
-                    AddPropertyToContext(property, rule.Id);
+                    RuleProjectId = project.Id,
+                    Id = request.Rule.Id,
+                    Name = request.Rule.Name,
+                    Description = request.Rule.Description
+                };
+
+                foreach (var property in request.Rule.RuleProject.Properties)
+                {
+                    AddPropertyToContext(property, project.Id);
                 }
 
                 foreach (var condition in request.Rule.Conditions)
                 {
                     AddConditionToContext(condition, rule.Id);
+                    foreach (var action in condition.Actions)
+                    {
+                        action.ConditionId = condition.Id;
+                        _context.Actions.Add(action);
+                    }
                 }
 
-                foreach (var action in request.Rule.Actions)
-                {
-                    action.RuleId = rule.Id;
-                    _context.Actions.Add(action);
-                }
+
 
                 _context.Rules.Add(rule);
 
@@ -61,7 +73,6 @@ namespace Application.Rules
 
                 return Result<Unit>.Success(Unit.Value);
             }
-
             private void AddConditionToContext(Condition condition, Guid ruleId)
             {
                 condition.RuleId = ruleId;
@@ -76,9 +87,9 @@ namespace Application.Rules
                 }
             }
 
-            private void AddPropertyToContext(RuleProperty property, Guid ruleId)
+            private void AddPropertyToContext(RuleProperty property, Guid projectId)
             {
-                property.RuleId = ruleId;
+                property.ProjectId = projectId;
                 _context.RuleProperties.Add(property);
 
                 if (property.SubProperties != null)
@@ -86,7 +97,7 @@ namespace Application.Rules
                     foreach (var subProperty in property.SubProperties)
                     {
                         subProperty.Direction = property.Direction;
-                        AddPropertyToContext(subProperty, ruleId);
+                        AddPropertyToContext(subProperty, projectId);
                     }
                 }
             }

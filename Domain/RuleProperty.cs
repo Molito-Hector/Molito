@@ -11,8 +11,8 @@ namespace Domain
     public class RuleProperty
     {
         public Guid Id { get; set; }
-        public Guid RuleId { get; set; }
-        public Rule Rule { get; set; }
+        public Guid ProjectId { get; set; }
+        public RuleProject RuleProject { get; set; }
         public string Name { get; set; }
         public PropertyType Type { get; set; }
         public char Direction { get; set; }
