@@ -4,20 +4,20 @@ using FluentValidation;
 using MediatR;
 using Persistence;
 
-namespace Application.Rules
+namespace Application.RuleProjects
 {
     public class Create
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Rule Rule { get; set; }
+            public RuleProject RuleProject { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
         {
             public CommandValidator()
             {
-                RuleFor(x => x.Rule).SetValidator(new RuleValidator());
+                RuleFor(x => x.RuleProject).SetValidator(new RuleProjectValidator());
             }
         }
 
@@ -31,21 +31,18 @@ namespace Application.Rules
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var projectId = request.Rule.RuleProjectId;
-
-                var rule = new Rule
+                var project = new RuleProject
                 {
-                    RuleProjectId = projectId,
-                    Id = request.Rule.Id,
-                    Name = request.Rule.Name,
-                    Description = request.Rule.Description
+                    Id = request.RuleProject.Id,
+                    Name = request.RuleProject.Name,
+                    Description = request.RuleProject.Description
                 };
 
-                _context.Rules.Add(rule);
+                _context.RuleProjects.Add(project);
 
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) return Result<Unit>.Failure("Failed to create rule");
+                if (!result) return Result<Unit>.Failure("Failed to create rule project");
 
                 return Result<Unit>.Success(Unit.Value);
             }

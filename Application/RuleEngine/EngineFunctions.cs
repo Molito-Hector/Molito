@@ -14,14 +14,13 @@ namespace Application.RuleEngine
             _mapper = mapper;
         }
 
-        public Result<Dictionary<string, object>> ValidateInputData(RuleWithProjectDto rule, JObject inputData)
+        public Result<Dictionary<string, object>> ValidateInputData(RuleProjectDto ruleProject, JObject inputData)
         {
             var validatedData = new Dictionary<string, object>();
 
-            foreach (var inputProperty in rule.RuleProject.Properties.Where(x => x.Direction == "I" || x.Direction == "B"))
+            foreach (var inputProperty in ruleProject.Properties.Where(x => x.Direction == "I" || x.Direction == "B"))
             {
-                JToken token;
-                if (!inputData.TryGetValue(inputProperty.Name, out token))
+                if (!inputData.TryGetValue(inputProperty.Name, out JToken token))
                 {
                     return Result<Dictionary<string, object>>.Failure($"Missing required property {inputProperty.Name}");
                 }
@@ -71,8 +70,7 @@ namespace Application.RuleEngine
 
                     foreach (var subProperty in subProperties)
                     {
-                        JToken subToken;
-                        if (!inputData.TryGetValue(subProperty.Name, out subToken))
+                        if (!inputData.TryGetValue(subProperty.Name, out JToken subToken))
                         {
                             return Result<object>.Failure($"Missing required sub-property {subProperty.Name}");
                         }
@@ -98,7 +96,7 @@ namespace Application.RuleEngine
 
             foreach (var property in properties)
             {
-                if (!(currentObject is Dictionary<string, object> dict))
+                if (currentObject is not Dictionary<string, object> dict)
                 {
                     return Result<object>.Failure($"Invalid field {field}: {property} is not an object");
                 }
@@ -112,11 +110,11 @@ namespace Application.RuleEngine
             return Result<object>.Success(currentObject);
         }
 
-        public JObject BuildOutputData(RuleWithProjectDto rule, Dictionary<string, object> validatedData)
+        public JObject BuildOutputData(RuleProjectDto ruleProject, Dictionary<string, object> validatedData)
         {
             var outputData = new JObject();
 
-            foreach (var property in rule.RuleProject.Properties.Where(rp => rp.Direction == "O" || rp.Direction == "B"))
+            foreach (var property in ruleProject.Properties.Where(rp => rp.Direction == "O" || rp.Direction == "B"))
             {
                 RuleProperty currentProperty = _mapper.Map<RuleProperty>(property);
 
@@ -178,19 +176,14 @@ namespace Application.RuleEngine
 
         private object GetDefaultValue(PropertyType type)
         {
-            switch (type)
+            return type switch
             {
-                case PropertyType.StringType:
-                    return string.Empty;
-                case PropertyType.NumberType:
-                    return 0.0;
-                case PropertyType.BooleanType:
-                    return false;
-                case PropertyType.ObjectType:
-                    return new JObject();
-                default:
-                    throw new ArgumentException($"Invalid property type: {type}");
-            }
+                PropertyType.StringType => string.Empty,
+                PropertyType.NumberType => 0.0,
+                PropertyType.BooleanType => false,
+                PropertyType.ObjectType => new JObject(),
+                _ => throw new ArgumentException($"Invalid property type: {type}"),
+            };
         }
     }
 }

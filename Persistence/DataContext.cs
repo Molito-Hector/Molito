@@ -16,6 +16,7 @@ namespace Persistence
         public DbSet<Rule> Rules { get; set; }
         public DbSet<DecisionTable> DecisionTables { get; set; }
         public DbSet<DecisionRow> DecisionRows { get; set; }
+        public DbSet<ConditionValue> ConditionValues { get; set; }
         public DbSet<Condition> Conditions { get; set; }
         public DbSet<Domain.Action> Actions { get; set; }
         public DbSet<RuleProjectMember> RuleProjectMembers { get; set; }
@@ -66,10 +67,20 @@ namespace Persistence
                 .WithMany(a => a.Rows)
                 .HasForeignKey(aa => aa.TableId);
 
+            builder.Entity<ConditionValue>()
+                .HasOne(u => u.DecisionRow)
+                .WithMany(a => a.Values)
+                .HasForeignKey(aa => aa.DecisionRowId);
+
             builder.Entity<Condition>()
                 .HasOne(u => u.Rule)
                 .WithMany(a => a.Conditions)
                 .HasForeignKey(aa => aa.RuleId);
+
+            builder.Entity<Condition>()
+                .HasOne(u => u.DecisionTable)
+                .WithMany(a => a.Conditions)
+                .HasForeignKey(aa => aa.TableId);
 
             builder.Entity<Condition>()
                 .HasMany(c => c.SubConditions)
@@ -90,6 +101,11 @@ namespace Persistence
                 .HasOne(u => u.Condition)
                 .WithMany(a => a.Actions)
                 .HasForeignKey(aa => aa.ConditionId);
+
+            builder.Entity<Domain.Action>()
+                .HasOne(u => u.DecisionRow)
+                .WithMany(a => a.Actions)
+                .HasForeignKey(aa => aa.RowId);
 
             builder.Entity<Comment>()
                 .HasOne(a => a.Rule)

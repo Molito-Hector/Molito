@@ -11,6 +11,7 @@ namespace Domain
         Set,
         Expression
     }
+
     public class Action
     {
         public Guid Id { get; set; }
@@ -18,7 +19,9 @@ namespace Domain
         public string TargetProperty { get; set; }
         public ModType? ModificationType { get; set; }
         public string ModificationValue { get; set; }
-        public Guid ConditionId { get; set; }
+        public Guid? ConditionId { get; set; }
         public Condition Condition { get; set; }
+        public Guid? RowId { get; set; }
+        public DecisionRow DecisionRow { get; set; }
     }
 }

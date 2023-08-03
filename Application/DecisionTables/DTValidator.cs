@@ -1,15 +1,16 @@
 using Domain;
 using FluentValidation;
 
-namespace Application.Rules
+namespace Application.DecisionTables
 {
-    public class RuleValidator : AbstractValidator<Rule>
+    public class DTValidator : AbstractValidator<DecisionTable>
     {
-        public RuleValidator()
+        public DTValidator()
         {
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
             RuleFor(x => x.RuleProjectId).NotEmpty();
+            RuleFor(x => x.EvaluationType).NotEmpty();
         }
     }
 }

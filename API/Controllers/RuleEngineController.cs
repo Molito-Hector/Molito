@@ -13,5 +13,10 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(new Execute.Command { Id = id, Data = data }));
         }
+        [HttpPost("{id}/executeTable")]
+        public async Task<IActionResult> ExecuteTable(Guid id, [FromBody] JObject data)
+        {
+            return HandleResult(await Mediator.Send(new ExecuteTable.Command { Id = id, Data = data }));
+        }
     }
 }

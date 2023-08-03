@@ -6,16 +6,16 @@ using Domain;
 using MediatR;
 using Persistence;
 
-namespace Application.Rules
+namespace Application.RuleProjects
 {
     public class List
     {
-        public class Query : IRequest<Result<PagedList<RuleListDto>>>
+        public class Query : IRequest<Result<PagedList<RuleProjectListDto>>>
         {
             public PagingParams Params { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<PagedList<RuleListDto>>>
+        public class Handler : IRequestHandler<Query, Result<PagedList<RuleProjectListDto>>>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
@@ -27,15 +27,15 @@ namespace Application.Rules
                 _context = context;
             }
 
-            public async Task<Result<PagedList<RuleListDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<PagedList<RuleProjectListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var query = _context.Rules
+                var query = _context.RuleProjects
                     .OrderBy(d => d.Name)
-                    .ProjectTo<RuleListDto>(_mapper.ConfigurationProvider, new { currentUsername = _userAccessor.GetUsername() })
+                    .ProjectTo<RuleProjectListDto>(_mapper.ConfigurationProvider, new { currentUsername = _userAccessor.GetUsername() })
                     .AsQueryable();
 
-                return Result<PagedList<RuleListDto>>.Success(
-                    await PagedList<RuleListDto>.CreateAsync(query, request.Params.PageNumber, request.Params.PageSize)
+                return Result<PagedList<RuleProjectListDto>>.Success(
+                    await PagedList<RuleProjectListDto>.CreateAsync(query, request.Params.PageNumber, request.Params.PageSize)
                 );
             }
         }

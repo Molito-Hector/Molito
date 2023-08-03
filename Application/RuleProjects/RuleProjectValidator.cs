@@ -1,15 +1,14 @@
 using Domain;
 using FluentValidation;
 
-namespace Application.Rules
+namespace Application.RuleProjects
 {
-    public class RuleValidator : AbstractValidator<Rule>
+    public class RuleProjectValidator : AbstractValidator<RuleProject>
     {
-        public RuleValidator()
+        public RuleProjectValidator()
         {
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.RuleProjectId).NotEmpty();
         }
     }
 }

@@ -4,20 +4,20 @@ using FluentValidation;
 using MediatR;
 using Persistence;
 
-namespace Application.Rules
+namespace Application.DecisionTables
 {
     public class Create
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Rule Rule { get; set; }
+            public DecisionTable DecisionTable { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
         {
             public CommandValidator()
             {
-                RuleFor(x => x.Rule).SetValidator(new RuleValidator());
+                RuleFor(x => x.DecisionTable).SetValidator(new DTValidator());
             }
         }
 
@@ -31,21 +31,21 @@ namespace Application.Rules
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var projectId = request.Rule.RuleProjectId;
+                var projectId = request.DecisionTable.RuleProjectId;
 
-                var rule = new Rule
+                var decisionTable = new DecisionTable
                 {
                     RuleProjectId = projectId,
-                    Id = request.Rule.Id,
-                    Name = request.Rule.Name,
-                    Description = request.Rule.Description
+                    Name = request.DecisionTable.Name,
+                    Description = request.DecisionTable.Description,
+                    EvaluationType = request.DecisionTable.EvaluationType
                 };
 
-                _context.Rules.Add(rule);
+                _context.DecisionTables.Add(decisionTable);
 
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) return Result<Unit>.Failure("Failed to create rule");
+                if (!result) return Result<Unit>.Failure("Failed to create decision table");
 
                 return Result<Unit>.Success(Unit.Value);
             }

@@ -2,22 +2,23 @@ using Application.Core;
 using Domain;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Rules
+namespace Application.RuleProjects
 {
-    public class Create
+    public class Edit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Rule Rule { get; set; }
+            public RuleProject RuleProject { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
         {
             public CommandValidator()
             {
-                RuleFor(x => x.Rule).SetValidator(new RuleValidator());
+                RuleFor(x => x.RuleProject).SetValidator(new RuleProjectValidator());
             }
         }
 
@@ -31,21 +32,17 @@ namespace Application.Rules
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var projectId = request.Rule.RuleProjectId;
+                var ruleProject = await _context.RuleProjects
+                    .FirstOrDefaultAsync(r => r.Id == request.RuleProject.Id);
 
-                var rule = new Rule
-                {
-                    RuleProjectId = projectId,
-                    Id = request.Rule.Id,
-                    Name = request.Rule.Name,
-                    Description = request.Rule.Description
-                };
+                if (ruleProject == null) return null;
 
-                _context.Rules.Add(rule);
+                ruleProject.Name = request.RuleProject.Name;
+                ruleProject.Description = request.RuleProject.Description;
 
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) return Result<Unit>.Failure("Failed to create rule");
+                if (!result) return Result<Unit>.Failure("Failed to update rule project");
 
                 return Result<Unit>.Success(Unit.Value);
             }

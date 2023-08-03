@@ -2,22 +2,23 @@ using Application.Core;
 using Domain;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Rules
+namespace Application.DecisionTables
 {
-    public class Create
+    public class Edit
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public Rule Rule { get; set; }
+            public DecisionTable DecisionTable { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
         {
             public CommandValidator()
             {
-                RuleFor(x => x.Rule).SetValidator(new RuleValidator());
+                RuleFor(x => x.DecisionTable).SetValidator(new DTValidator());
             }
         }
 
@@ -31,21 +32,20 @@ namespace Application.Rules
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var projectId = request.Rule.RuleProjectId;
+                var table = await _context.DecisionTables
+                    .Include(r => r.Rows)
+                    .FirstOrDefaultAsync(r => r.Id == request.DecisionTable.Id);
 
-                var rule = new Rule
-                {
-                    RuleProjectId = projectId,
-                    Id = request.Rule.Id,
-                    Name = request.Rule.Name,
-                    Description = request.Rule.Description
-                };
+                if (table == null) return null;
 
-                _context.Rules.Add(rule);
+                table.Name = request.DecisionTable.Name;
+                table.Description = request.DecisionTable.Description;
+                table.EvaluationType = request.DecisionTable.EvaluationType;
+
 
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) return Result<Unit>.Failure("Failed to create rule");
+                if (!result) return Result<Unit>.Failure("Failed to update rule");
 
                 return Result<Unit>.Success(Unit.Value);
             }

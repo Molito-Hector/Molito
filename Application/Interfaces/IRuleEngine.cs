@@ -7,5 +7,6 @@ namespace Application.Interfaces
     public interface IRuleEngine
     {
         Result<JObject> ExecuteRule(RuleWithProjectDto rule, JObject data);
+        Result<JObject> ExecuteTable(DTWithProjectDto table, JObject data);
     }
 }

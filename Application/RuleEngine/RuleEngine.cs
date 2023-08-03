@@ -25,10 +25,16 @@ namespace Application.RuleEngine
                 return Result<JObject>.Failure("Rule not found or not provided");
             }
 
-            var validatedData = _engineFunctions.ValidateInputData(rule, data);
+            var validatedData = _engineFunctions.ValidateInputData(rule.RuleProject, data);
             if (!validatedData.IsSuccess) return Result<JObject>.Failure(validatedData.Error);
 
-            var outputData = _engineFunctions.BuildOutputData(rule, validatedData.Value);
+            var outputData = _engineFunctions.BuildOutputData(rule.RuleProject, validatedData.Value);
+
+            if (rule.Conditions.Count == 0)
+            {
+                data.Add("Molito Message", "Rule doesn't contain any conditions");
+                return Result<JObject>.Success(data);
+            }
 
             foreach (var conditiondto in rule.Conditions)
             {
@@ -49,6 +55,58 @@ namespace Application.RuleEngine
                     var result = PerformAction(actionDto, validatedData.Value, outputData);
                     if (!result.IsSuccess) return Result<JObject>.Failure(result.Error);
                 }
+            }
+
+            return Result<JObject>.Success(outputData);
+        }
+
+        public Result<JObject> ExecuteTable(DTWithProjectDto table, JObject data)
+        {
+            if (table == null)
+            {
+                return Result<JObject>.Failure("Decision Table not found or not provided");
+            }
+
+            var validatedData = _engineFunctions.ValidateInputData(table.RuleProject, data);
+            if (!validatedData.IsSuccess) return Result<JObject>.Failure(validatedData.Error);
+
+            var outputData = _engineFunctions.BuildOutputData(table.RuleProject, validatedData.Value);
+
+            if (table.Conditions.Count == 0)
+            {
+                data.Add("Molito Message", "Decision Table doesn't contain any conditions");
+                return Result<JObject>.Success(data);
+            }
+
+            foreach (DecisionRowDto row in table.Rows)
+            {
+                bool conditionMatch = true;
+
+                foreach (ConditionValue conditionValue in row.Values)
+                {
+                    Condition condition = _mapper.Map<Condition>(table.Conditions.FirstOrDefault(x => x.Id == conditionValue.ConditionId));
+                    condition.Value = row.Values.FirstOrDefault(x => x.ConditionId == condition.Id).Value;
+
+                    var evaluation = EvaluateCondition(condition, validatedData.Value);
+                    if (!evaluation.IsSuccess) return Result<JObject>.Failure(evaluation.Error);
+
+                    if (!evaluation.Value)
+                    {
+                        conditionMatch = false;
+                        break;
+                    }
+                }
+
+                if (conditionMatch)
+                {
+                    foreach (var action in row.Actions)
+                    {
+                        ActionDto actionDto = _mapper.Map<ActionDto>(action);
+                        var result = PerformAction(actionDto, validatedData.Value, outputData);
+                        if (!result.IsSuccess) return Result<JObject>.Failure(result.Error);
+                    }
+                }
+
             }
 
             return Result<JObject>.Success(outputData);
@@ -81,23 +139,16 @@ namespace Application.RuleEngine
 
             var fieldInData = fieldData.Value;
 
-            switch (condition.Operator)
+            return condition.Operator switch
             {
-                case ">":
-                    return Result<bool>.Success(Convert.ToDouble(fieldInData) > Convert.ToDouble(condition.Value));
-                case "<":
-                    return Result<bool>.Success(Convert.ToDouble(fieldInData) < Convert.ToDouble(condition.Value));
-                case ">=":
-                    return Result<bool>.Success(Convert.ToDouble(fieldInData) >= Convert.ToDouble(condition.Value));
-                case "<=":
-                    return Result<bool>.Success(Convert.ToDouble(fieldInData) <= Convert.ToDouble(condition.Value));
-                case "==":
-                    return Result<bool>.Success(fieldInData.ToString() == condition.Value);
-                case "!=":
-                    return Result<bool>.Success(fieldInData.ToString() != condition.Value);
-                default:
-                    return Result<bool>.Failure($"Invalid operator {condition.Operator}");
-            }
+                ">" => Result<bool>.Success(Convert.ToDouble(fieldInData) > Convert.ToDouble(condition.Value)),
+                "<" => Result<bool>.Success(Convert.ToDouble(fieldInData) < Convert.ToDouble(condition.Value)),
+                ">=" => Result<bool>.Success(Convert.ToDouble(fieldInData) >= Convert.ToDouble(condition.Value)),
+                "<=" => Result<bool>.Success(Convert.ToDouble(fieldInData) <= Convert.ToDouble(condition.Value)),
+                "==" => Result<bool>.Success(fieldInData.ToString() == condition.Value),
+                "!=" => Result<bool>.Success(fieldInData.ToString() != condition.Value),
+                _ => Result<bool>.Failure($"Invalid operator {condition.Operator}"),
+            };
         }
 
         private Result<JObject> PerformAction(ActionDto action, Dictionary<string, object> inputData, JObject outputObject)
@@ -106,7 +157,7 @@ namespace Application.RuleEngine
 
             try
             {
-                strategy = _actionStrategyFactory.CreateStrategy(action.ModificationType.ToString());
+                strategy = _actionStrategyFactory.CreateStrategy(action.ModificationType);
             }
             catch (ArgumentException e)
             {

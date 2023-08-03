@@ -11,7 +11,9 @@ namespace Domain
         public Condition ParentCondition { get; set; }
         public ICollection<Condition> SubConditions { get; set; }
         public ICollection<Action> Actions { get; set; }
-        public Guid RuleId { get; set; }
+        public Guid? RuleId { get; set; }
         public Rule Rule { get; set; }
+        public Guid? TableId { get; set; }
+        public DecisionTable DecisionTable { get; set; }
     }
 }
