@@ -35,7 +35,7 @@ namespace Domain
         public string Value { get; set; }
         public string LogicalOperator { get; set; }
         public ICollection<ActionDto> Actions { get; set; }
-        public List<SubConditionDto> SubConditions { get; set; }
+        public List<ConditionDto> SubConditions { get; set; }
     }
 
     public class SubConditionDto

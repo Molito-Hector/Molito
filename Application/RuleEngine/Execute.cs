@@ -1,5 +1,6 @@
 using Application.Core;
 using Application.Interfaces;
+using Application.RuleFlows;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain;
@@ -23,10 +24,10 @@ namespace Application.RuleEngine
             private readonly DataContext _context;
             private readonly IMapper _mapper;
             private readonly IUserAccessor _userAccessor;
-            private readonly IRuleEngine _ruleEngine;
-            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor, IRuleEngine ruleEngine)
+            private readonly IEngineFunctions _engineFunctions;
+            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor, IEngineFunctions engineFunctions)
             {
-                _ruleEngine = ruleEngine;
+                _engineFunctions = engineFunctions;
                 _userAccessor = userAccessor;
                 _mapper = mapper;
                 _context = context;
@@ -40,7 +41,9 @@ namespace Application.RuleEngine
 
                 if (rule == null) return null;
 
-                var result = _ruleEngine.ExecuteRule(rule, request.Data);
+                var rr = new RuleFlowElement(_engineFunctions) { Rule = rule };
+
+                var result = rr.Execute(request.Data);
 
                 return result;
             }

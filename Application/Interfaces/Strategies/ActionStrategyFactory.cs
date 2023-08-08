@@ -3,10 +3,8 @@ namespace Application.Interfaces.Strategies
     public class ActionStrategyFactory
     {
         private readonly Dictionary<string, IActionStrategy> _strategies;
-        private readonly IEngineFunctions _engineFunctions;
-        public ActionStrategyFactory(IEngineFunctions engineFunctions, IEnumerable<IActionStrategy> strategies)
+        public ActionStrategyFactory(IEnumerable<IActionStrategy> strategies)
         {
-            _engineFunctions = engineFunctions;
             _strategies = strategies.ToDictionary(
                 s => s.ModificationType,
                 s => s,

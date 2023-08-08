@@ -8,11 +8,6 @@ namespace Application.Interfaces.Strategies
     public class ExpressionActionStrategy : IActionStrategy
     {
         public string ModificationType => "Expression";
-        private readonly IEngineFunctions _engineFunctions;
-        public ExpressionActionStrategy(IEngineFunctions engineFunctions)
-        {
-            _engineFunctions = engineFunctions;
-        }
 
         public Result<JObject> Execute(ActionDto action, Dictionary<string, object> inputData, JObject outputObject)
         {
@@ -38,7 +33,7 @@ namespace Application.Interfaces.Strategies
 
                     string propertyName = action.ModificationValue.Substring(start + 1, end - start - 1);
 
-                    var valueRetrieval = _engineFunctions.GetValueFromDataInput(inputData, propertyName);
+                    var valueRetrieval = GetValueFromDataInput(inputData, propertyName);
                     if (!valueRetrieval.IsSuccess) return Result<JObject>.Failure(valueRetrieval.Error);
 
                     var propertyValue = (double)valueRetrieval.Value;
@@ -77,6 +72,28 @@ namespace Application.Interfaces.Strategies
             {
                 return Result<JObject>.Failure($"Error while modifying field {action.TargetProperty}: {ex.Message}");
             }
+        }
+
+        private Result<object> GetValueFromDataInput(Dictionary<string, object> dataInput, string field)
+        {
+            var properties = field.Split('.');
+
+            object currentObject = dataInput;
+
+            foreach (var property in properties)
+            {
+                if (currentObject is not Dictionary<string, object> dict)
+                {
+                    return Result<object>.Failure($"Invalid field {field}: {property} is not an object");
+                }
+
+                if (!dict.TryGetValue(property, out currentObject))
+                {
+                    return Result<object>.Failure($"Invalid field {field}: {property} not found in input data");
+                }
+            }
+
+            return Result<object>.Success(currentObject);
         }
     }
 }

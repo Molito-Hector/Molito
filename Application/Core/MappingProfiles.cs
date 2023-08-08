@@ -42,6 +42,7 @@ namespace Application.Core
             CreateMap<ConditionDto, Condition>();
             CreateMap<Condition, SubConditionDto>();
             CreateMap<SubConditionDto, Condition>();
+            CreateMap<ConditionValue, ConditionValueDto>();
             CreateMap<RuleProperty, RulePropertyDto>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()));
             CreateMap<RuleProperty, SubpropertyDto>()

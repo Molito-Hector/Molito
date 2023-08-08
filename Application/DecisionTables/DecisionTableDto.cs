@@ -34,7 +34,14 @@ namespace Domain
     public class DecisionRowDto
     {
         public Guid Id { get; set; }
-        public ICollection<ConditionValue> Values { get; set; }
+        public ICollection<ConditionValueDto> Values { get; set; }
         public ICollection<ActionDto> Actions { get; set; }
+    }
+
+    public class ConditionValueDto
+    {
+        public Guid Id { get; set; }
+        public Guid ConditionId { get; set; }
+        public string Value { get; set; }
     }
 }

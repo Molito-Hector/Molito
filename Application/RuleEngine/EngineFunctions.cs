@@ -1,5 +1,6 @@
 using Application.Core;
 using Application.Interfaces;
+using Application.Interfaces.Strategies;
 using AutoMapper;
 using Domain;
 using Newtonsoft.Json.Linq;
@@ -9,16 +10,19 @@ namespace Application.RuleEngine
     public class EngineFunctions : IEngineFunctions
     {
         private readonly IMapper _mapper;
-        public EngineFunctions(IMapper mapper)
+        private readonly ActionStrategyFactory _actionStrategyFactory;
+        public EngineFunctions(IMapper mapper, ActionStrategyFactory actionStrategyFactory)
         {
+            _actionStrategyFactory = actionStrategyFactory;
             _mapper = mapper;
         }
 
         public Result<Dictionary<string, object>> ValidateInputData(RuleProjectDto ruleProject, JObject inputData)
         {
             var validatedData = new Dictionary<string, object>();
+            var inputProperties = ruleProject.Properties.Where(x => x.Direction == "I" || x.Direction == "B");
 
-            foreach (var inputProperty in ruleProject.Properties.Where(x => x.Direction == "I" || x.Direction == "B"))
+            foreach (var inputProperty in inputProperties)
             {
                 if (!inputData.TryGetValue(inputProperty.Name, out JToken token))
                 {
@@ -88,7 +92,7 @@ namespace Application.RuleEngine
             }
         }
 
-        public Result<object> GetValueFromDataInput(Dictionary<string, object> dataInput, string field)
+        private Result<object> GetValueFromDataInput(Dictionary<string, object> dataInput, string field)
         {
             var properties = field.Split('.');
 
@@ -113,8 +117,9 @@ namespace Application.RuleEngine
         public JObject BuildOutputData(RuleProjectDto ruleProject, Dictionary<string, object> validatedData)
         {
             var outputData = new JObject();
+            var outputProperties = ruleProject.Properties.Where(rp => rp.Direction == "O" || rp.Direction == "B");
 
-            foreach (var property in ruleProject.Properties.Where(rp => rp.Direction == "O" || rp.Direction == "B"))
+            foreach (var property in outputProperties)
             {
                 RuleProperty currentProperty = _mapper.Map<RuleProperty>(property);
 
@@ -172,6 +177,82 @@ namespace Application.RuleEngine
             }
 
             return outputData;
+        }
+
+        public Result<JObject> PerformAction(ActionDto action, Dictionary<string, object> inputData, JObject outputObject)
+        {
+            IActionStrategy strategy;
+
+            try
+            {
+                strategy = _actionStrategyFactory.CreateStrategy(action.ModificationType);
+            }
+            catch (ArgumentException e)
+            {
+                return Result<JObject>.Failure(e.Message);
+            }
+
+            return strategy.Execute(action, inputData, outputObject);
+        }
+
+        public Result<bool> EvaluateCondition(ConditionDto condition, Dictionary<string, object> inputData)
+        {
+            if (condition == null) return Result<bool>.Failure("Condition is null");
+
+            if (condition.SubConditions.Count > 0)
+            {
+                return EvaluateSubConditions(condition, inputData);
+            }
+            else
+            {
+                return EvaluateComparison(condition, inputData);
+            }
+        }
+
+        private Result<bool> EvaluateSubConditions(ConditionDto condition, Dictionary<string, object> inputData)
+        {
+            switch (condition.LogicalOperator.ToLower())
+            {
+                case "and":
+                    foreach (var subCondition in condition.SubConditions)
+                    {
+                        var result = EvaluateCondition(subCondition, inputData);
+                        if (!result.IsSuccess) return Result<bool>.Failure(result.Error);
+                        if (!result.Value) return Result<bool>.Success(false);  // If one condition is false, return false for "AND"
+                    }
+                    return Result<bool>.Success(true);
+
+                case "or":
+                    foreach (var subCondition in condition.SubConditions)
+                    {
+                        var result = EvaluateCondition(subCondition, inputData);
+                        if (!result.IsSuccess) return Result<bool>.Failure(result.Error);
+                        if (result.Value) return Result<bool>.Success(true);  // If one condition is true, return true for "OR"
+                    }
+                    return Result<bool>.Success(false);
+
+                default:
+                    return Result<bool>.Failure($"Invalid logical operator {condition.LogicalOperator}");
+            }
+        }
+
+        private Result<bool> EvaluateComparison(ConditionDto condition, Dictionary<string, object> inputData)
+        {
+            var fieldData = GetValueFromDataInput(inputData, condition.Field);
+            if (!fieldData.IsSuccess) return Result<bool>.Failure(fieldData.Error);
+
+            var fieldInData = fieldData.Value;
+
+            return condition.Operator switch
+            {
+                ">" => Result<bool>.Success(Convert.ToDouble(fieldInData) > Convert.ToDouble(condition.Value)),
+                "<" => Result<bool>.Success(Convert.ToDouble(fieldInData) < Convert.ToDouble(condition.Value)),
+                ">=" => Result<bool>.Success(Convert.ToDouble(fieldInData) >= Convert.ToDouble(condition.Value)),
+                "<=" => Result<bool>.Success(Convert.ToDouble(fieldInData) <= Convert.ToDouble(condition.Value)),
+                "==" => Result<bool>.Success(fieldInData.ToString() == condition.Value),
+                "!=" => Result<bool>.Success(fieldInData.ToString() != condition.Value),
+                _ => Result<bool>.Failure($"Invalid operator {condition.Operator}"),
+            };
         }
 
         private object GetDefaultValue(PropertyType type)

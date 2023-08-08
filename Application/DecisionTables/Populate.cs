@@ -32,54 +32,61 @@ namespace Application.DecisionTables
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var tableId = request.DecisionTable.Id;
+                using var transaction = _context.Database.BeginTransaction();
 
-                foreach (var condition in request.DecisionTable.Conditions)
+                try
                 {
-                    condition.Id = new Guid();
-                    AddConditionToContext(condition, tableId);
-                }
+                    var tableId = request.DecisionTable.Id;
 
-                foreach (var row in request.DecisionTable.Rows)
-                {
-                    row.TableId = tableId;
-                    _context.DecisionRows.Add(row);
-
-                    foreach (var action in row.Actions)
+                    foreach (var condition in request.DecisionTable.Conditions)
                     {
-                        action.RowId = row.Id;
-                        _context.Actions.Add(action);
+                        AddConditions(condition, tableId);
                     }
-                }
+                    _context.Conditions.AddRange(request.DecisionTable.Conditions);
 
-                for (var i = 0; i < request.DecisionTable.Conditions.Count; i++)
-                {
                     foreach (var row in request.DecisionTable.Rows)
                     {
-                        row.Values.ElementAt(i).ConditionId = request.DecisionTable.Conditions.ElementAt(i).Id;
-                        row.Values.ElementAt(i).DecisionRowId = row.Id;
-                        _context.ConditionValues.Add(row.Values.ElementAt(i));
+                        row.TableId = tableId;
+
+                        foreach (var action in row.Actions)
+                        {
+                            action.RowId = row.Id;
+                        }
+
+                        for (var i = 0; i < request.DecisionTable.Conditions.Count; i++)
+                        {
+                            row.Values.ElementAt(i).ConditionId = request.DecisionTable.Conditions.ElementAt(i).Id;
+                            row.Values.ElementAt(i).DecisionRowId = row.Id;
+                        }
                     }
+                    _context.DecisionRows.AddRange(request.DecisionTable.Rows);
+
+                    var result = await _context.SaveChangesAsync() > 0;
+
+                    if (!result) throw new Exception("Failed to populate decision table");
+
+                    await transaction.CommitAsync();
+
+                    return Result<Unit>.Success(Unit.Value);
                 }
-
-                var result = await _context.SaveChangesAsync() > 0;
-
-                if (!result) return Result<Unit>.Failure("Failed to populate decision table");
-
-                return Result<Unit>.Success(Unit.Value);
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return Result<Unit>.Failure(ex.Message);
+                }
             }
 
-            private void AddConditionToContext(Condition condition, Guid tableId)
+            private void AddConditions(Condition condition, Guid tableId)
             {
+                condition.Id = Guid.NewGuid();
                 condition.TableId = tableId;
-                _context.Conditions.Add(condition);
 
                 if (condition.SubConditions != null)
                 {
                     foreach (var subCondition in condition.SubConditions)
                     {
                         subCondition.ParentConditionId = condition.Id;
-                        AddConditionToContext(subCondition, tableId);
+                        AddConditions(subCondition, tableId);
                     }
                 }
             }
