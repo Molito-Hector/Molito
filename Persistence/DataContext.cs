@@ -90,12 +90,14 @@ namespace Persistence
             builder.Entity<RuleProperty>()
                 .HasOne(u => u.RuleProject)
                 .WithMany(a => a.Properties)
-                .HasForeignKey(aa => aa.ProjectId);
+                .HasForeignKey(aa => aa.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<RuleProperty>()
                 .HasMany(c => c.SubProperties)
                 .WithOne(c => c.ParentProperty)
-                .HasForeignKey(c => c.ParentPropertyId);
+                .HasForeignKey(c => c.ParentPropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Domain.Action>()
                 .HasOne(u => u.Condition)

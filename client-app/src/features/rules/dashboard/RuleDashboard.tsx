@@ -9,24 +9,24 @@ import RuleList from "./RuleList";
 
 export default observer(function RuleDashboard() {
 
-    const { ruleStore } = useStore();
-    const { loadRules, ruleRegistry, setPagingParams, pagination } = ruleStore;
+    const { ruleProjectStore } = useStore();
+    const { loadRuleProjects, ruleProjectRegistry, setPagingParams, pagination } = ruleProjectStore;
     const [loadingNext, setLoadingNext] = useState(false);
 
     function handleGetNext() {
         setLoadingNext(true);
         setPagingParams(new PagingParams(pagination!.currentPage + 1))
-        loadRules().then(() => setLoadingNext(false));
+        loadRuleProjects().then(() => setLoadingNext(false));
     }
 
     useEffect(() => {
-        if (ruleRegistry.size <= 1) loadRules();
-    }, [loadRules, ruleRegistry.size])
+        if (ruleProjectRegistry.size <= 1) loadRuleProjects();
+    }, [loadRuleProjects, ruleProjectRegistry.size])
 
     return (
         <Grid>
             <Grid.Column width='16'>
-                {ruleStore.loadingInitial && !loadingNext ? (
+                {ruleProjectStore.loadingInitial && !loadingNext ? (
                     <>
                         <RuleListItemPlaceholder />
                         <RuleListItemPlaceholder />

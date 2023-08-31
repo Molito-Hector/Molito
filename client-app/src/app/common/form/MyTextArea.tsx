@@ -6,6 +6,8 @@ interface Props {
     name: string;
     rows: number;
     label?: string;
+    value?: string;
+    readOnly?: boolean;
 }
 
 export default function MyTextArea(props: Props) {

@@ -35,13 +35,13 @@ export default observer(function RuleDetailedInfo({ rule }: Props) {
                         {rule.conditions.map(condition => renderCondition(condition))}
                     </ul>
                     <div>Actions:</div>
-                    <ul>
+                    {/* <ul>
                         {rule.actions.map(action => (
                             <li key={action.id}>
                                 Name: {action.name}
                             </li>
                         ))}
-                    </ul>
+                    </ul> */}
                 </Card.Description>
             </Card.Content>
         </Card>

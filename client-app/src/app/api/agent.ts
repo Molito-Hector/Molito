@@ -7,6 +7,8 @@ import { User, UserFormValues } from "../models/user";
 import { Photo, Profile, UserActivity } from "../models/profile";
 import { PaginatedResult } from "../models/pagination";
 import { Rule, RuleFormValues } from "../models/rule";
+import { RPFormValues, RuleProject, RuleProperty } from "../models/ruleProject";
+import { DTFormValues, DecisionTable } from "../models/decisionTable";
 
 const sleep = (delay: number) => {
     return new Promise((resolve) => {
@@ -91,6 +93,21 @@ const Rules = {
     delete: (id: string) => requests.del<void>(`/rules/${id}`)
 }
 
+const RuleProjects = {
+    list: (params: URLSearchParams) => axios.get<PaginatedResult<RuleProject[]>>('ruleprojects', { params }).then(responseBody),
+    details: (id: string) => requests.get<RuleProject>(`/ruleprojects/${id}`),
+    create: (ruleProject: RPFormValues) => requests.post<void>('ruleprojects', ruleProject),
+    delete: (id: string) => requests.del<void>(`/ruleprojects/${id}`),
+    addProperties: (id: string, properties: RuleProperty[]) => requests.post<void>(`/ruleprojects/${id}/addProperties`, properties),
+    removeProperty: (id: string) => requests.del<void>(`/ruleprojects/removeProperty/${id}`)
+}
+
+const DecisionTables = {
+    details: (id: string) => requests.get<DecisionTable>(`/tables/${id}`),
+    create: (table: DTFormValues) => requests.post<void>('/tables', table),
+    delete: (id: string) => requests.del<void>(`/tables/${id}`)
+}
+
 const Account = {
     current: () => requests.get<User>('/account'),
     login: (user: UserFormValues) => requests.post<User>('/account/login', user),
@@ -118,7 +135,9 @@ const agent = {
     Activities,
     Account,
     Profiles,
-    Rules
+    Rules,
+    RuleProjects,
+    DecisionTables
 }
 
 export default agent;

@@ -1,8 +1,11 @@
 export interface Rule {
     id: string;
     name: string;
+    description: string;
+    createdAt: any;
     conditions: Condition[];
-    actions: Action[];
+    type?: string;
+    [key: string]: any;
 }
 
 export interface Condition {
@@ -12,11 +15,15 @@ export interface Condition {
     value: string;
     logicalOperator?: string;
     subConditions?: Condition[];
+    actions: Action[];
 }
 
 export interface Action {
     id?: string;
     name: string;
+    targetProperty: string;
+    modificationType: string;
+    modificationValue: string;
 }
 
 export class Rule implements Rule {
@@ -28,15 +35,13 @@ export class Rule implements Rule {
 export class RuleFormValues {
     id?: string = undefined;
     name: string = '';
-    conditions: Condition[] = [{ field: '', operator: '', value: '', logicalOperator: '', subConditions: [] }];;
-    actions: Action[] = [];
+    description: string = '';
+    ruleProjectId: string = '';
 
     constructor(rule?: RuleFormValues) {
         if (rule) {
             this.id = rule.id;
             this.name = rule.name;
-            this.conditions = rule.conditions;
-            this.actions = rule.actions;
         }
     }
 }

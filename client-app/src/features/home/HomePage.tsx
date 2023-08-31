@@ -16,7 +16,7 @@ export default observer(function HomePage() {
                 {userStore.isLoggedIn ? (
                     <>
                         <Header as='h2' inverted content='Welcome to Molito AIDE' />
-                        <Button as={Link} to='/rules' size='huge' inverted>
+                        <Button as={Link} to='/ruleprojects' size='huge' inverted>
                             Go to Rules!
                         </Button>
                     </>

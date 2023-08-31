@@ -7,6 +7,8 @@ import ProfileStore from "./profileStore";
 import CommentStore from "./commentStore";
 import SubscriptionStore from "./subscriptionStore";
 import RuleStore from "./ruleStore";
+import RuleProjectStore from "./ruleProjectStore";
+import DecisionTableStore from "./decisionTableStore";
 
 interface Store {
     activityStore: ActivityStore;
@@ -17,6 +19,8 @@ interface Store {
     commentStore: CommentStore;
     subscriptionStore: SubscriptionStore;
     ruleStore: RuleStore;
+    ruleProjectStore: RuleProjectStore;
+    decisionTableStore: DecisionTableStore;
 }
 
 export const store: Store = {
@@ -27,7 +31,9 @@ export const store: Store = {
     profileStore: new ProfileStore(),
     commentStore: new CommentStore(),
     subscriptionStore: new SubscriptionStore(),
-    ruleStore: new RuleStore()
+    ruleStore: new RuleStore(),
+    ruleProjectStore: new RuleProjectStore(),
+    decisionTableStore: new DecisionTableStore()
 }
 
 export const StoreContext = createContext(store);

@@ -35,6 +35,7 @@ namespace Application.DecisionTables
 
                 var decisionTable = new DecisionTable
                 {
+                    Id = request.DecisionTable.Id,
                     RuleProjectId = projectId,
                     Name = request.DecisionTable.Name,
                     Description = request.DecisionTable.Description,

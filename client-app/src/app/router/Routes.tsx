@@ -12,6 +12,8 @@ import SubscriptionPage from "../../features/subsctiptions/SubscriptionPage";
 import RuleDashboard from "../../features/rules/dashboard/RuleDashboard";
 import RuleDetails from "../../features/rules/details/RuleDetails";
 import RuleForm from "../../features/rules/form/RuleForm";
+import RuleProjectDetails from "../../features/ruleProjects/details/RuleProjectDetails";
+import DTDetails from "../../features/decisionTables/DTDetails";
 
 export const routes: RouteObject[] = [
     {
@@ -25,8 +27,10 @@ export const routes: RouteObject[] = [
                     { path: 'createActivity', element: <ActivityForm key='create' /> },
                     { path: 'manage/:id', element: <ActivityForm key='manage' /> },
                     { path: 'profiles/:username', element: <ProfilePage /> },
-                    { path: 'rules', element: <RuleDashboard /> },
+                    { path: 'ruleprojects', element: <RuleDashboard /> },
                     { path: 'rules/:id', element: <RuleDetails /> },
+                    { path: 'tables/:id', element: <DTDetails /> },
+                    { path: 'ruleprojects/:id', element: <RuleProjectDetails /> },
                     { path: 'createRule', element: <RuleForm key='create' /> }
                 ]
             },

@@ -20,7 +20,7 @@ export default function RuleListItem({ rule }: Props) {
                         </Item.Meta>
                         <Item.Description>
                             Conditions: {rule.conditions.length} <br />
-                            Actions: {rule.actions.length}
+                            {/* Actions: {rule.actions.length} */}
                         </Item.Description>
                     </Item.Content>
                 </Item>

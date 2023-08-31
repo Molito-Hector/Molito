@@ -2,6 +2,7 @@ import { makeAutoObservable, reaction, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Pagination, PagingParams } from "../models/pagination";
 import { Rule, RuleFormValues } from "../models/rule";
+import { store } from "./store";
 
 export default class RuleStore {
     ruleRegistry = new Map<string, Rule>();
@@ -152,20 +153,13 @@ export default class RuleStore {
     createRule = async (rule: RuleFormValues) => {
         try {
             const ruleToCreate = {
-                ...rule,
-                conditions: rule.conditions.map(c => ({
-                    ...c,
-                    logicalOperator: c.logicalOperator,
-                    subConditions: c.subConditions?.map(sub => ({
-                        ...sub,
-                        logicalOperator: sub.logicalOperator
-                    }))
-                })),
-                actions: rule.actions.map(a => ({ ...a })),
+                ...rule
             };
             await agent.Rules.create(ruleToCreate);
             const newRule = new Rule(rule);
+            newRule.createdAt = new Date();
             this.setRule(newRule);
+            store.ruleProjectStore.add(newRule);
             runInAction(() => {
                 this.selectedRule = newRule;
             })
@@ -174,32 +168,32 @@ export default class RuleStore {
         }
     }
 
-    updateRule = async (rule: RuleFormValues) => {
-        try {
-            const ruleToUpdate = {
-                ...rule,
-                conditions: rule.conditions.map(c => ({
-                    ...c,
-                    logicalOperator: c.logicalOperator,
-                    subConditions: c.subConditions?.map(sub => ({
-                        ...sub,
-                        logicalOperator: sub.logicalOperator
-                    }))
-                })),
-                actions: rule.actions.map(a => ({ ...a })),
-            };
-            await agent.Rules.update(ruleToUpdate);
-            runInAction(() => {
-                if (rule.id) {
-                    let updatedRule = { ...this.getRule(rule.id), ...rule }
-                    this.ruleRegistry.set(rule.id, updatedRule as Rule);
-                    this.selectedRule = updatedRule as Rule;
-                }
-            })
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    // updateRule = async (rule: RuleFormValues) => {
+    //     try {
+    //         const ruleToUpdate = {
+    //             ...rule,
+    //             conditions: rule.conditions.map(c => ({
+    //                 ...c,
+    //                 logicalOperator: c.logicalOperator,
+    //                 subConditions: c.subConditions?.map(sub => ({
+    //                     ...sub,
+    //                     logicalOperator: sub.logicalOperator
+    //                 }))
+    //             })),
+    //             // actions: rule.actions.map(a => ({ ...a })),
+    //         };
+    //         await agent.Rules.update(ruleToUpdate);
+    //         runInAction(() => {
+    //             if (rule.id) {
+    //                 let updatedRule = { ...this.getRule(rule.id), ...rule }
+    //                 this.ruleRegistry.set(rule.id, updatedRule as Rule);
+    //                 this.selectedRule = updatedRule as Rule;
+    //             }
+    //         })
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
 
     deleteRule = async (id: string) => {
         this.loading = true;
@@ -207,6 +201,7 @@ export default class RuleStore {
             await agent.Rules.delete(id);
             runInAction(() => {
                 this.ruleRegistry.delete(id);
+                store.ruleProjectStore.remove(id);
                 this.loading = false;
             })
         } catch (error) {
