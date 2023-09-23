@@ -6,7 +6,7 @@ import { store } from "../stores/store";
 import { User, UserFormValues } from "../models/user";
 import { Photo, Profile, UserActivity } from "../models/profile";
 import { PaginatedResult } from "../models/pagination";
-import { Rule, RuleFormValues } from "../models/rule";
+import { Condition, Rule, RuleFormValues } from "../models/rule";
 import { RPFormValues, RuleProject, RuleProperty } from "../models/ruleProject";
 import { DTFormValues, DecisionTable } from "../models/decisionTable";
 
@@ -105,6 +105,8 @@ const RuleProjects = {
 const DecisionTables = {
     details: (id: string) => requests.get<DecisionTable>(`/tables/${id}`),
     create: (table: DTFormValues) => requests.post<void>('/tables', table),
+    populate: (id: string, table: DecisionTable) => requests.post<void>(`/tables/${id}/populate`, table),
+    addColumn: (id: string, condition: Condition, predicate: string) => requests.post<void>(`/tables/${id}/addColumn?predicate=${predicate}`, condition),
     delete: (id: string) => requests.del<void>(`/tables/${id}`)
 }
 

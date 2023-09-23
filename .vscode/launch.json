@@ -30,6 +30,14 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
+        },
+        {
+            "name": "Launch localhost",
+            "type": "firefox",
+            "request": "attach",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/client-app/src",
+            "firefoxExecutable": "C:/Program Files/Mozilla Firefox/firefox.exe"
         }
     ]
 }

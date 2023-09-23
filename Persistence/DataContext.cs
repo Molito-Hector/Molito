@@ -60,32 +60,38 @@ namespace Persistence
             builder.Entity<DecisionTable>()
                 .HasOne(u => u.RuleProject)
                 .WithMany(a => a.DecisionTables)
-                .HasForeignKey(aa => aa.RuleProjectId);
+                .HasForeignKey(aa => aa.RuleProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<DecisionRow>()
                 .HasOne(u => u.DecisionTable)
                 .WithMany(a => a.Rows)
-                .HasForeignKey(aa => aa.TableId);
+                .HasForeignKey(aa => aa.TableId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ConditionValue>()
                 .HasOne(u => u.DecisionRow)
                 .WithMany(a => a.Values)
-                .HasForeignKey(aa => aa.DecisionRowId);
+                .HasForeignKey(aa => aa.DecisionRowId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Condition>()
                 .HasOne(u => u.Rule)
                 .WithMany(a => a.Conditions)
-                .HasForeignKey(aa => aa.RuleId);
+                .HasForeignKey(aa => aa.RuleId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Condition>()
                 .HasOne(u => u.DecisionTable)
                 .WithMany(a => a.Conditions)
-                .HasForeignKey(aa => aa.TableId);
+                .HasForeignKey(aa => aa.TableId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Condition>()
                 .HasMany(c => c.SubConditions)
                 .WithOne(c => c.ParentCondition)
-                .HasForeignKey(c => c.ParentConditionId);
+                .HasForeignKey(c => c.ParentConditionId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<RuleProperty>()
                 .HasOne(u => u.RuleProject)
@@ -102,12 +108,14 @@ namespace Persistence
             builder.Entity<Domain.Action>()
                 .HasOne(u => u.Condition)
                 .WithMany(a => a.Actions)
-                .HasForeignKey(aa => aa.ConditionId);
+                .HasForeignKey(aa => aa.ConditionId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Domain.Action>()
                 .HasOne(u => u.DecisionRow)
                 .WithMany(a => a.Actions)
-                .HasForeignKey(aa => aa.RowId);
+                .HasForeignKey(aa => aa.RowId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Comment>()
                 .HasOne(a => a.Rule)

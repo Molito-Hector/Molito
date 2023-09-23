@@ -27,7 +27,7 @@ export default observer(function RPRulesTab({ ruleProject }: Props) {
     };
 
     return (
-        <Grid container spacing={3}>
+        <Grid spacing={3}>
             <Grid.Column width={16}>
                 <Dropdown text='New' icon={'plus'} item>
                     <Dropdown.Menu>

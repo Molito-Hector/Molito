@@ -65,13 +65,19 @@ export default observer(function DataModelTab({ ruleProject }: Props) {
                             index={index}
                             onClick={() => handleClick(index)}
                         >
-                            <Icon name="dropdown" />
-                            {title}
-                            <Icon
-                                name="trash"
-                                onClick={() => handleOpenDeleteModal(property)}
-                                style={{ cursor: 'pointer' }}
-                            />
+                            <Grid>
+                                <Grid.Column width={8}>
+                                    <Icon name="dropdown" />
+                                    {title}
+                                </Grid.Column>
+                                <Grid.Column textAlign="right" width={8}>
+                                    <Icon
+                                        name="trash"
+                                        onClick={() => handleOpenDeleteModal(property)}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+                                </Grid.Column>
+                            </Grid>
                         </Accordion.Title>
                         <Accordion.Content active={activeIndex === index}>
                             {property.subProperties.map((subProperty, i) =>
@@ -84,12 +90,20 @@ export default observer(function DataModelTab({ ruleProject }: Props) {
         } else {
             return (
                 <>
-                    <p key={property.id}>{title}</p>
-                    <Icon
-                        name="trash"
-                        onClick={() => handleOpenDeleteModal(property)}
-                        style={{ cursor: 'pointer' }}
-                    />
+                    <Grid>
+                        <Grid.Row>
+                            <Grid.Column width={8}>
+                                <p key={property.id}>{title}</p>
+                            </Grid.Column>
+                            <Grid.Column textAlign="right" width={8}>
+                                <Icon
+                                    name="trash"
+                                    onClick={() => handleOpenDeleteModal(property)}
+                                    style={{ cursor: 'pointer' }}
+                                />
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
                 </>
             )
         }
@@ -98,11 +112,12 @@ export default observer(function DataModelTab({ ruleProject }: Props) {
     return (
         <Grid>
             <Grid.Column width={16}>
+                <Button color='teal' onClick={() => setModalOpen(true)}>Add Property</Button>
                 <Segment raised>
                     {ruleProject.properties.map((property, index) =>
                         renderProperty(property, index)
                     )}
-                    <Button onClick={() => setModalOpen(true)}>Add Property</Button>
+
                     <AddPropertyModal
                         open={modalOpen}
                         onClose={() => setModalOpen(false)}

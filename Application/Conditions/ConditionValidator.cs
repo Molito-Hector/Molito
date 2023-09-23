@@ -9,7 +9,6 @@ namespace Application.Conditions
         {
             RuleFor(x => x.Field).NotEmpty();
             RuleFor(x => x.Operator).NotEmpty();
-            RuleFor(x => x.Actions).NotEmpty();
         }
     }
 }

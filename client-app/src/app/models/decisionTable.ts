@@ -13,12 +13,15 @@ export interface DecisionTable {
 
 export interface DecisionRow {
     id?: string;
+    tableId?: string;
+
     values: ConditionValue[];
     actions: Action[];
 }
 
 export interface ConditionValue {
-    id: string;
+    id?: string;
+    decisionRowId?: string;
     conditionId: string;
     value: string;
 }
@@ -29,13 +32,23 @@ export class DecisionTable implements DecisionTable {
     }
 }
 
+export class DecisionRow implements DecisionRow {
+    id?: string = undefined;
+    values: ConditionValue[] = [{ conditionId: '', id: '', value: '' }];
+    actions: Action[] = [{ id: '', name: '', targetProperty: '', modificationType: '', modificationValue: '' }];
+
+    constructor(init?: DecisionRow) {
+        Object.assign(this, init);
+    }
+}
+
 export class DTFormValues {
     id?: string = undefined;
     name: string = '';
     description: string = '';
     evaluationType: string = '';
-    conditions: Condition[] = [{ field: '', operator: '', value: '', logicalOperator: '', subConditions: [], actions: [] }];
-    rows: DecisionRow[] = [{ values: [], actions: [] }];
+    conditions: Condition[] = [];
+    rows: DecisionRow[] = [];
     ruleProjectId: string = '';
 
     constructor(table?: DTFormValues) {

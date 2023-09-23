@@ -9,7 +9,7 @@ import { DecisionRow, DecisionTable } from "../../app/models/decisionTable";
 import AddConditionModal from "./AddConditionModal";
 import { v4 as uuid } from 'uuid';
 
-export default observer(function DTDetails() {
+export default observer(function DTDetailsNew() {
 
     const { decisionTableStore } = useStore();
     const { selectedTable: table, loadTable, loadingInitial, clearSelectedTable, populateTable, loading, addTableColumn } = decisionTableStore;
@@ -94,8 +94,6 @@ export default observer(function DTDetails() {
     };
 
     const addColumn = async (field: string, operator: string) => {
-        console.log('Starting addColumn in UI with field:', field, 'and operator:', operator);
-
         if (!modifiedTable) return;
 
         const newCondition: Condition = {
@@ -107,15 +105,8 @@ export default observer(function DTDetails() {
         };
 
         try {
-            console.log('Before calling addTableColumn from UI');
-
             await addTableColumn(newCondition);
-
-            console.log('After calling addTableColumn from UI');
-
             setModifiedTable(prevState => {
-                console.log('Inside setModifiedTable callback');
-
                 if (!prevState) return;
 
                 const updatedRows = prevState.rows.map(row => {
@@ -133,8 +124,6 @@ export default observer(function DTDetails() {
                     return newRow;
                 });
 
-                console.log('After modifying rows in UI', updatedRows);
-
                 setEditMode(false);
 
                 return {
@@ -146,7 +135,7 @@ export default observer(function DTDetails() {
             console.error("Failed to save changes: ", error);
         }
     };
-    
+
     const handleAddCondition = (field: string, operator: string) => {
         addColumn(field, operator);
     };

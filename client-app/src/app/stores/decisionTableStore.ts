@@ -3,6 +3,7 @@ import agent from "../api/agent";
 import { Pagination, PagingParams } from "../models/pagination";
 import { DTFormValues, DecisionTable } from "../models/decisionTable";
 import { store } from "./store";
+import { Condition } from "../models/rule";
 
 export default class DecisionTableStore {
     tableRegistry = new Map<string, DecisionTable>();
@@ -74,32 +75,45 @@ export default class DecisionTableStore {
         }
     }
 
-    // updateRule = async (rule: RuleFormValues) => {
-    //     try {
-    //         const ruleToUpdate = {
-    //             ...rule,
-    //             conditions: rule.conditions.map(c => ({
-    //                 ...c,
-    //                 logicalOperator: c.logicalOperator,
-    //                 subConditions: c.subConditions?.map(sub => ({
-    //                     ...sub,
-    //                     logicalOperator: sub.logicalOperator
-    //                 }))
-    //             })),
-    //             // actions: rule.actions.map(a => ({ ...a })),
-    //         };
-    //         await agent.Rules.update(ruleToUpdate);
-    //         runInAction(() => {
-    //             if (rule.id) {
-    //                 let updatedRule = { ...this.getRule(rule.id), ...rule }
-    //                 this.ruleRegistry.set(rule.id, updatedRule as Rule);
-    //                 this.selectedRule = updatedRule as Rule;
-    //             }
-    //         })
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
+    populateTable = async (table: DecisionTable) => {
+        this.loading = true;
+        try {
+            await agent.DecisionTables.populate(table.id, table);
+            runInAction(() => {
+                if (table.id) {
+                    let updatedTable = { ...this.getTable(table.id), ...table }
+                    this.tableRegistry.set(table.id, updatedTable as DecisionTable);
+                    this.selectedTable = updatedTable as DecisionTable;
+                    this.loading = false;
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    addTableColumn = async (condition: Condition) => {
+        console.log('Starting addTableColumn', condition);
+
+        this.loading = true;
+        var id = this.selectedTable!.id;
+        try {
+            console.log('Before API Call: Current Conditions', this.selectedTable?.conditions);
+
+            await agent.DecisionTables.addColumn(id, condition, 'Table');
+
+            console.log('After API Call: Current Conditions', this.selectedTable?.conditions);
+
+            runInAction(() => {
+                this.selectedTable?.conditions.push(condition);
+                this.loading = false;
+            });
+
+            console.log('After runInAction: Current Conditions', this.selectedTable?.conditions);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     deleteTable = async (id: string) => {
         this.loading = true;

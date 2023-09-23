@@ -3,6 +3,7 @@ namespace Domain
     public class DecisionTableDto
     {
         public Guid Id { get; set; }
+        public Guid RuleProjectId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public EvalType EvaluationType { get; set; }
@@ -34,6 +35,7 @@ namespace Domain
     public class DecisionRowDto
     {
         public Guid Id { get; set; }
+        public Guid TableId { get; set; }
         public ICollection<ConditionValueDto> Values { get; set; }
         public ICollection<ActionDto> Actions { get; set; }
     }
@@ -42,6 +44,7 @@ namespace Domain
     {
         public Guid Id { get; set; }
         public Guid ConditionId { get; set; }
+        public Guid DecisionRowId { get; set; }
         public string Value { get; set; }
     }
 }

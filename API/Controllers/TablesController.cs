@@ -1,3 +1,4 @@
+using Application.Conditions;
 using Application.Core;
 using Application.DecisionTables;
 using Domain;
@@ -44,6 +45,14 @@ namespace API.Controllers
         public async Task<IActionResult> PopulateTable(DecisionTable table)
         {
             return HandleResult(await Mediator.Send(new Populate.Command { DecisionTable = table }));
+        }
+
+        [HttpPost("{id}/addColumn")]
+        public async Task<IActionResult> addColumn(Condition condition, string predicate, Guid id)
+        {
+            ICollection<Condition> conditions = new List<Condition>();
+            conditions.Add(condition);
+            return HandleResult(await Mediator.Send(new AddConditions.Command { Conditions = conditions, Predicate = predicate, RuleId = id }));
         }
     }
 }

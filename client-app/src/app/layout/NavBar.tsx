@@ -7,7 +7,7 @@ export default observer(function NavBar() {
     const { userStore: { user, logout } } = useStore();
     return (
         <Menu inverted fixed='top'>
-            <Container>
+            <Container style={{width: '90%'}}>
                 <Menu.Item as={NavLink} to='/' header>
                     <img src="/assets/logo.png" alt="logo" style={{ marginRight: '10px' }} />
                     Molito

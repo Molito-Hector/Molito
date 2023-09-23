@@ -50,6 +50,7 @@ namespace Domain
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public Guid? RowId { get; set; }
         public string TargetProperty { get; set; }
         public string ModificationType { get; set; }
         public string ModificationValue { get; set; }
