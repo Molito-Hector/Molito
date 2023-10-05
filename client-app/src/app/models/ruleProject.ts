@@ -1,4 +1,5 @@
 import { DecisionTable } from "./decisionTable";
+import { Profile } from "./profile";
 import { Rule } from "./rule";
 
 export interface RuleProject {
@@ -9,6 +10,7 @@ export interface RuleProject {
     properties: RuleProperty[];
     standardRules: Rule[];
     decisionTables: DecisionTable[];
+    members: Profile[];
 }
 
 export interface RuleProperty {

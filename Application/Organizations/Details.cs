@@ -11,12 +11,12 @@ namespace Application.Organizations
 {
     public class Details
     {
-        public class Query : IRequest<Result<Organization>>
+        public class Query : IRequest<Result<OrganizationWithMembersDto>>
         {
             public Guid OrgId { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<Organization>>
+        public class Handler : IRequestHandler<Query, Result<OrganizationWithMembersDto>>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
@@ -28,13 +28,13 @@ namespace Application.Organizations
                 _context = context;
             }
 
-            public async Task<Result<Organization>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<OrganizationWithMembersDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var organization = await _context.Organizations
-                    .ProjectTo<Organization>(_mapper.ConfigurationProvider, new { currentUsername = _userAccessor.GetUsername() })
+                    .ProjectTo<OrganizationWithMembersDto>(_mapper.ConfigurationProvider, new { currentUsername = _userAccessor.GetUsername() })
                     .SingleOrDefaultAsync(x => x.Id == request.OrgId);
 
-                return Result<Organization>.Success(organization);
+                return Result<OrganizationWithMembersDto>.Success(organization);
             }
         }
     }

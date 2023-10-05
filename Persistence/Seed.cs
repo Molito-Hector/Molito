@@ -17,6 +17,14 @@ namespace Persistence
                 };
 
                 await roleManager.CreateAsync(adminRole);
+
+                var orgAdmin = new IdentityRole
+                {
+                    Name = "OrgAdmin",
+                    NormalizedName = "OrgAdmin"
+                };
+
+                await roleManager.CreateAsync(orgAdmin);
             }
 
             if (!userManager.Users.Any() && !context.Activities.Any())
@@ -44,7 +52,7 @@ namespace Persistence
 
                 var adminUser = await userManager.FindByEmailAsync("molito@molito.ai");
 
-                if (adminUser != null) await userManager.AddToRoleAsync(adminUser, "Admin");
+                if (adminUser != null) await userManager.AddToRolesAsync(adminUser, new[] { "Admin", "OrgAdmin" });
 
                 var activities = new List<Activity>
                 {

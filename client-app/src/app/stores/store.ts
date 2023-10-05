@@ -9,6 +9,7 @@ import SubscriptionStore from "./subscriptionStore";
 import RuleStore from "./ruleStore";
 import RuleProjectStore from "./ruleProjectStore";
 import DecisionTableStore from "./decisionTableStore";
+import OrganizationStore from "./organizationStore";
 
 interface Store {
     activityStore: ActivityStore;
@@ -21,6 +22,7 @@ interface Store {
     ruleStore: RuleStore;
     ruleProjectStore: RuleProjectStore;
     decisionTableStore: DecisionTableStore;
+    organizationStore: OrganizationStore;
 }
 
 export const store: Store = {
@@ -33,7 +35,8 @@ export const store: Store = {
     subscriptionStore: new SubscriptionStore(),
     ruleStore: new RuleStore(),
     ruleProjectStore: new RuleProjectStore(),
-    decisionTableStore: new DecisionTableStore()
+    decisionTableStore: new DecisionTableStore(),
+    organizationStore: new OrganizationStore()
 }
 
 export const StoreContext = createContext(store);

@@ -83,6 +83,16 @@ namespace API.Controllers
             return CreateUserObject(user);
         }
 
+        [Authorize]
+        [HttpGet("/getUser/{username}")]
+        public async Task<ActionResult<UserDto>> GetUser(string username)
+        {
+            var user = await _userManager.Users.Include(p => p.Photos)
+                .FirstOrDefaultAsync(x => x.UserName == username);
+
+            return CreateUserObject(user);
+        }
+
         private UserDto CreateUserObject(AppUser user)
         {
             return new UserDto

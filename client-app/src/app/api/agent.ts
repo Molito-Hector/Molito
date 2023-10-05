@@ -9,17 +9,11 @@ import { PaginatedResult } from "../models/pagination";
 import { Action, Condition, Rule, RuleFormValues } from "../models/rule";
 import { RPFormValues, RuleProject, RuleProperty } from "../models/ruleProject";
 import { DTFormValues, DecisionTable } from "../models/decisionTable";
-
-const sleep = (delay: number) => {
-    return new Promise((resolve) => {
-        setTimeout(resolve, delay)
-    })
-}
+import { OrgFormValues, Organization } from "../models/organization";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 axios.interceptors.response.use(async response => {
-    if (process.env.NODE_ENV === 'development') await sleep(1000);
     const pagination = response.headers['pagination'];
     if (pagination) {
         response.data = new PaginatedResult(response.data, JSON.parse(pagination));
@@ -85,6 +79,12 @@ const Activities = {
     attend: (id: string) => requests.post<void>(`/activities/${id}/attend`, {})
 }
 
+const Organizations = {
+    create: (organization: OrgFormValues) => requests.post<void>('/organizations', organization),
+    details: (id: string) => requests.get<Organization>(`/organizations/${id}`),
+    updateMember: (id: string, username: string) => requests.post<void>(`/organizations/${id}/updateMember`, username)
+}
+
 const Rules = {
     list: (params: URLSearchParams) => axios.get<PaginatedResult<Rule[]>>('/rules', { params }).then(responseBody),
     details: (id: string) => requests.get<Rule>(`/rules/${id}`),
@@ -99,7 +99,8 @@ const RuleProjects = {
     create: (ruleProject: RPFormValues) => requests.post<void>('ruleprojects', ruleProject),
     delete: (id: string) => requests.del<void>(`/ruleprojects/${id}`),
     addProperties: (id: string, properties: RuleProperty[]) => requests.post<void>(`/ruleprojects/${id}/addProperties`, properties),
-    removeProperty: (id: string, propId: string) => requests.del<void>(`/ruleprojects/${id}/removeProperty/${propId}`)
+    removeProperty: (id: string, propId: string) => requests.del<void>(`/ruleprojects/${id}/removeProperty/${propId}`),
+    updateMember: (id: string, username: string) => requests.post<void>(`/ruleprojects/${id}/updateMember`, username)
 }
 
 const DecisionTables = {
@@ -116,6 +117,7 @@ const DecisionTables = {
 
 const Account = {
     current: () => requests.get<User>('/account'),
+    getUser: (username: string) => requests.get<User>(`/account/getUser/${username}`),
     login: (user: UserFormValues) => requests.post<User>('/account/login', user),
     register: (user: UserFormValues) => requests.post<User>('/account/register', user)
 }
@@ -143,7 +145,8 @@ const agent = {
     Profiles,
     Rules,
     RuleProjects,
-    DecisionTables
+    DecisionTables,
+    Organizations
 }
 
 export default agent;

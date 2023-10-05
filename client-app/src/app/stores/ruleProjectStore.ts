@@ -4,6 +4,9 @@ import { Pagination, PagingParams } from "../models/pagination";
 import { RPFormValues, RuleProject, RuleProperty } from "../models/ruleProject";
 import { DecisionTable } from "../models/decisionTable";
 import { Rule } from "../models/rule";
+import { store } from "./store";
+import { Profile } from "../models/profile";
+import { User } from "../models/user";
 
 export default class RuleProjectStore {
     ruleProjectRegistry = new Map<string, RuleProject>();
@@ -246,6 +249,27 @@ export default class RuleProjectStore {
         } catch (error) {
             console.log(error);
             this.setLoading(false);
+        }
+    }
+
+    updateMembership = async (username: string) => {
+        const user = await agent.Account.getUser(username);
+        this.loading = true;
+        try {
+            await agent.RuleProjects.updateMember(this.selectedRuleProject!.id, user.username);
+            runInAction(() => {
+                if (this.selectedRuleProject?.members.some(x => x.username == user.username)) {
+                    this.selectedRuleProject.members = this.selectedRuleProject.members?.filter(a => a.username !== user.username);
+                } else {
+                    const member = new Profile(user!);
+                    this.selectedRuleProject?.members?.push(member);
+                }
+                this.ruleProjectRegistry.set(this.selectedRuleProject!.id, this.selectedRuleProject!)
+            })
+        } catch (error) {
+            console.log(error);
+        } finally {
+            runInAction(() => this.loading = false);
         }
     }
 
