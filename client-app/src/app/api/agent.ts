@@ -6,7 +6,7 @@ import { store } from "../stores/store";
 import { User, UserFormValues } from "../models/user";
 import { Photo, Profile, UserActivity } from "../models/profile";
 import { PaginatedResult } from "../models/pagination";
-import { Condition, Rule, RuleFormValues } from "../models/rule";
+import { Action, Condition, Rule, RuleFormValues } from "../models/rule";
 import { RPFormValues, RuleProject, RuleProperty } from "../models/ruleProject";
 import { DTFormValues, DecisionTable } from "../models/decisionTable";
 
@@ -99,7 +99,7 @@ const RuleProjects = {
     create: (ruleProject: RPFormValues) => requests.post<void>('ruleprojects', ruleProject),
     delete: (id: string) => requests.del<void>(`/ruleprojects/${id}`),
     addProperties: (id: string, properties: RuleProperty[]) => requests.post<void>(`/ruleprojects/${id}/addProperties`, properties),
-    removeProperty: (id: string) => requests.del<void>(`/ruleprojects/removeProperty/${id}`)
+    removeProperty: (id: string, propId: string) => requests.del<void>(`/ruleprojects/${id}/removeProperty/${propId}`)
 }
 
 const DecisionTables = {
@@ -107,7 +107,11 @@ const DecisionTables = {
     create: (table: DTFormValues) => requests.post<void>('/tables', table),
     populate: (id: string, table: DecisionTable) => requests.post<void>(`/tables/${id}/populate`, table),
     addColumn: (id: string, condition: Condition, predicate: string) => requests.post<void>(`/tables/${id}/addColumn?predicate=${predicate}`, condition),
-    delete: (id: string) => requests.del<void>(`/tables/${id}`)
+    addActionColumn: (id: string, action: Action, predicate: string) => requests.post<void>(`/tables/${id}/addActionColumn?predicate=${predicate}`, action),
+    editActionColumn: (id: string, action: Action) => requests.put<void>(`/tables/${id}/actions/column`, action),
+    delete: (id: string) => requests.del<void>(`/tables/${id}`),
+    deleteColumn: (id: string) => requests.del<void>(`/tables/${id}/removeColumn`),
+    deleteActionColumn: (id: string) => requests.del<void>(`/tables/${id}/removeActionColumn`)
 }
 
 const Account = {

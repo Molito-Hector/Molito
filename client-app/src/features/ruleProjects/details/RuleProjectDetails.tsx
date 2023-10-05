@@ -20,7 +20,8 @@ export default observer(function RuleProjectDetails() {
         return () => clearSelectedRuleProject();
     }, [id, loadRuleProject, clearSelectedRuleProject])
 
-    if (loadingInitial || !ruleProject) return <LoadingComponent />;
+    if (loadingInitial) return <LoadingComponent />;
+    if (!ruleProject) return <LoadingComponent content="Error loading project" />;
 
     const panes = [
         {

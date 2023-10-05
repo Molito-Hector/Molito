@@ -10,11 +10,24 @@ interface Props {
   onSubmit: (property: RuleProperty) => void;
 }
 
+const PROPERTY_TYPES = [
+  { key: 'StringType', text: 'String', value: 'StringType' },
+  { key: 'NumberType', text: 'Number', value: 'NumberType' },
+  { key: 'BooleanType', text: 'Boolean', value: 'BooleanType' },
+  { key: 'ObjectType', text: 'Object', value: 'ObjectType' }
+];
+
+const DIRECTIONS = [
+  { key: 'I', text: 'Input', value: 'I' },
+  { key: 'O', text: 'Output', value: 'O' },
+  { key: 'B', text: 'Bidirectional', value: 'B' }
+];
+
 const AddPropertyModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const initialValues: RuleProperty = {
     id: "",
     name: "",
-    type: "",
+    type: "StringType",
     direction: "",
     subProperties: [],
   };
@@ -59,21 +72,25 @@ const AddPropertyModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
                 onBlur={handleBlur}
                 error={touched.name && errors.name}
               />
-              <Form.Input
+              <Form.Dropdown
                 label="Type"
                 name="type"
+                fluid
+                selection
+                options={PROPERTY_TYPES}
                 value={values.type}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                onChange={(e, { value }) => setFieldValue('type', value)}
                 error={touched.type && errors.type}
               />
-              <Form.Input
+              <Form.Dropdown
                 label="Direction"
                 name="direction"
+                fluid
+                selection
+                options={DIRECTIONS}
                 value={values.direction}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={touched.direction && errors.direction}
+                onChange={(e, { value }) => setFieldValue('direction', value)}
+                error={touched.type && errors.type}
               />
 
               <FieldArray
@@ -91,12 +108,14 @@ const AddPropertyModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
                             onBlur={handleBlur}
                             error={(touched.subProperties as any)?.[index]?.name && (errors.subProperties as any)?.[index]?.name}
                           />
-                          <Form.Input
+                          <Form.Dropdown
                             label="Subproperty Type"
                             name={`subProperties.${index}.type`}
+                            fluid
+                            selection
+                            options={PROPERTY_TYPES}
                             value={subProperty.type}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
+                            onChange={(e, { value }) => setFieldValue(`subProperties.${index}.type`, value)}
                             error={(touched.subProperties as any)?.[index]?.type && (errors.subProperties as any)?.[index]?.type}
                           />
                           <Button

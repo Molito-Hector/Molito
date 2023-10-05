@@ -13,10 +13,10 @@ export default observer(function NavBar() {
                     Molito
                 </Menu.Item>
                 <Menu.Item as={NavLink} to='/ruleprojects' name='Decision Library' />
-                {/* {user?.roles.includes("Admin") &&
+                {user?.roles.includes("Admin") &&
                     <Menu.Item>
                         <Button as={NavLink} to='/createRule' positive content='Create Rule' />
-                    </Menu.Item>} */}
+                    </Menu.Item>}
                 <Menu.Item position='right'>
                     <Image src={user?.image || '/assets/user.png'} avatar spaced='right' />
                     <Dropdown pointing='top left' text={user?.displayName}>

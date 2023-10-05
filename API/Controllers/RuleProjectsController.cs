@@ -7,15 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [AllowAnonymous]
     public class RuleProjectsController : BaseApiController
     {
+        [Authorize]
         [HttpGet] //api/ruleprojects
         public async Task<IActionResult> GetRuleProjects([FromQuery] PagingParams param)
         {
             return HandlePagedResult(await Mediator.Send(new List.Query { Params = param }));
         }
 
+        //[Authorize(Policy = "IsRuleProjectMember")]
         [HttpGet("{id}")] //api/ruleprojects/{id}
         public async Task<IActionResult> GetRuleProject(Guid id)
         {
@@ -28,6 +29,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Create.Command { RuleProject = ruleProject }));
         }
 
+        [Authorize(Policy = "IsRuleProjectMember")]
         [HttpPut("{id}")]
         public async Task<IActionResult> EditRuleProject(Guid id, RuleProject ruleProject)
         {
@@ -35,28 +37,38 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Edit.Command { RuleProject = ruleProject }));
         }
 
+        [Authorize(Policy = "IsRuleProjectOwner")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRuleProject(Guid id)
         {
             return HandleResult(await Mediator.Send(new Delete.Command { Id = id }));
         }
 
+        [Authorize(Policy = "IsRuleProjectMember")]
         [HttpPost("{id}/addProperties")]
         public async Task<IActionResult> AddProperties(Guid id, [FromBody] ICollection<RuleProperty> ruleProperties)
         {
             return HandleResult(await Mediator.Send(new AddProperties.Command { ProjectId = id, RuleProperties = ruleProperties }));
         }
 
-        [HttpDelete("removeProperty/{propId}")]
+        [Authorize(Policy = "IsRuleProjectMember")]
+        [HttpDelete("{id}/removeProperty/{propId}")]
         public async Task<IActionResult> RemoveProperty(Guid propId)
         {
             return HandleResult(await Mediator.Send(new RemoveProperty.Command { Id = propId }));
         }
 
-        [HttpPut("editProperty")]
-        public async Task<IActionResult> RemoveProperty(RuleProperty property)
+        [Authorize(Policy = "IsRuleProjectMember")]
+        [HttpPut("{id}/editProperty")]
+        public async Task<IActionResult> EditProperty(RuleProperty property)
         {
             return HandleResult(await Mediator.Send(new EditProperty.Command { RuleProperty = property }));
+        }
+
+        [HttpPost("{id}/updateMember")]
+        public async Task<IActionResult> UpdateMembership(Guid id, string username)
+        {
+            return HandleResult(await Mediator.Send(new UpdateMembership.Command { Id = id, UserName = username }));
         }
     }
 }

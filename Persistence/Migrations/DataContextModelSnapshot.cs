@@ -35,7 +35,7 @@ namespace Persistence.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("RowId")
+                    b.Property<Guid?>("TableId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TargetProperty")
@@ -45,9 +45,31 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ConditionId");
 
-                    b.HasIndex("RowId");
+                    b.HasIndex("TableId");
 
                     b.ToTable("Actions");
+                });
+
+            modelBuilder.Entity("Domain.ActionValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ActionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("DecisionRowId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DecisionRowId");
+
+                    b.ToTable("ActionValues");
                 });
 
             modelBuilder.Entity("Domain.Activity", b =>
@@ -580,12 +602,23 @@ namespace Persistence.Migrations
                         .HasForeignKey("ConditionId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Domain.DecisionRow", "DecisionRow")
+                    b.HasOne("Domain.DecisionTable", "DecisionTable")
                         .WithMany("Actions")
-                        .HasForeignKey("RowId")
+                        .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Condition");
+
+                    b.Navigation("DecisionTable");
+                });
+
+            modelBuilder.Entity("Domain.ActionValue", b =>
+                {
+                    b.HasOne("Domain.DecisionRow", "DecisionRow")
+                        .WithMany("ActionValues")
+                        .HasForeignKey("DecisionRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("DecisionRow");
                 });
@@ -848,13 +881,15 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.DecisionRow", b =>
                 {
-                    b.Navigation("Actions");
+                    b.Navigation("ActionValues");
 
                     b.Navigation("Values");
                 });
 
             modelBuilder.Entity("Domain.DecisionTable", b =>
                 {
+                    b.Navigation("Actions");
+
                     b.Navigation("Comments");
 
                     b.Navigation("Conditions");

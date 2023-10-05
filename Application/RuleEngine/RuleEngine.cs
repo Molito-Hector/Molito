@@ -75,9 +75,10 @@ namespace Application.RuleEngine
 
                 if (!conditionMatch.Value) continue;
 
-                foreach (var action in row.Actions)
+                foreach (var action in table.Actions)
                 {
                     matchCount++;
+                    action.ModificationValue = row.ActionValues.Where(a => a.ActionId == action.Id).FirstOrDefault().Value;
                     var result = _engineFunctions.PerformAction(action, validatedData.Value, outputData);
                     if (!result.IsSuccess) return Result<JObject>.Failure(result.Error);
                 }

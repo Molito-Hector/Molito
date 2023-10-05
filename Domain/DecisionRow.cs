@@ -6,6 +6,6 @@ namespace Domain
         public Guid TableId { get; set; }
         public DecisionTable DecisionTable { get; set; }
         public ICollection<ConditionValue> Values { get; set; }
-        public ICollection<Action> Actions { get; set; }
+        public ICollection<ActionValue> ActionValues { get; set; }
     }
 }

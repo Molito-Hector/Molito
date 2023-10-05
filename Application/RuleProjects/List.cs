@@ -4,6 +4,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.RuleProjects
@@ -29,7 +30,10 @@ namespace Application.RuleProjects
 
             public async Task<Result<PagedList<RuleProjectListDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == _userAccessor.GetUsername());
+
                 var query = _context.RuleProjects
+                    .Where(rp => rp.Members.Any(rpm => rpm.AppUser == user))
                     .OrderBy(d => d.Name)
                     .ProjectTo<RuleProjectListDto>(_mapper.ConfigurationProvider, new { currentUsername = _userAccessor.GetUsername() })
                     .AsQueryable();

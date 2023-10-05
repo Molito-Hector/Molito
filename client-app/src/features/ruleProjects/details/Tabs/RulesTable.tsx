@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Rule } from "../../../../app/models/rule";
-import { Icon, Table } from "semantic-ui-react";
+import { Card, Icon, Popup, Table } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import DeleteModal from "./DeleteModal";
@@ -123,11 +123,27 @@ export function RulesTable({ data }: TableProps) {
               <Table.Cell>{format(rule.createdAt, 'MM/dd/yyyy')}</Table.Cell>
               <Table.Cell>{rule.type}</Table.Cell>
               <Table.Cell>
-                <Icon name="edit" />
+                <Popup
+                  hoverable
+                  trigger={
+                    <Icon name="exchange" />
+                  }
+                >
+                  <Popup.Content>
+                    <Card>
+                      <Card.Content>
+                        <Card.Header>{rule.name}</Card.Header>
+                        <Card.Description>
+                          To call this rule, use the following URL: /api/ruleengine/{rule.id}/executeTable
+                        </Card.Description>
+                      </Card.Content>
+                    </Card>
+                  </Popup.Content>
+                </Popup>
                 <Icon
                   name="trash"
                   onClick={() => handleOpenDeleteModal(rule)}
-                  style={{cursor: 'pointer'}}
+                  style={{ cursor: 'pointer' }}
                 />
               </Table.Cell>
             </Table.Row>

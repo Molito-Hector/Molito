@@ -11,15 +11,18 @@ namespace Persistence
         }
 
         public DbSet<Activity> Activities { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
         public DbSet<RuleProject> RuleProjects { get; set; }
         public DbSet<RuleProperty> RuleProperties { get; set; }
         public DbSet<Rule> Rules { get; set; }
         public DbSet<DecisionTable> DecisionTables { get; set; }
         public DbSet<DecisionRow> DecisionRows { get; set; }
         public DbSet<ConditionValue> ConditionValues { get; set; }
+        public DbSet<ActionValue> ActionValues { get; set; }
         public DbSet<Condition> Conditions { get; set; }
         public DbSet<Domain.Action> Actions { get; set; }
         public DbSet<RuleProjectMember> RuleProjectMembers { get; set; }
+        public DbSet<OrganizationMember> OrganizationMembers { get; set; }
         public DbSet<ActivityAttendee> ActivityAttendees { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -31,6 +34,7 @@ namespace Persistence
 
             builder.Entity<ActivityAttendee>(x => x.HasKey(aa => new { aa.AppUserId, aa.ActivityId }));
             builder.Entity<RuleProjectMember>(x => x.HasKey(aa => new { aa.AppUserId, aa.RuleProjectId }));
+            builder.Entity<OrganizationMember>(x => x.HasKey(aa => new { aa.AppUserId, aa.OrganizationId }));
 
             builder.Entity<ActivityAttendee>()
                 .HasOne(u => u.AppUser)
@@ -52,6 +56,11 @@ namespace Persistence
                 .WithMany(a => a.Members)
                 .HasForeignKey(aa => aa.RuleProjectId);
 
+            builder.Entity<OrganizationMember>()
+                .HasOne(u => u.Organization)
+                .WithMany(a => a.Members)
+                .HasForeignKey(aa => aa.OrganizationId);
+
             builder.Entity<Rule>()
                 .HasOne(u => u.RuleProject)
                 .WithMany(a => a.StandardRules)
@@ -72,6 +81,12 @@ namespace Persistence
             builder.Entity<ConditionValue>()
                 .HasOne(u => u.DecisionRow)
                 .WithMany(a => a.Values)
+                .HasForeignKey(aa => aa.DecisionRowId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ActionValue>()
+                .HasOne(u => u.DecisionRow)
+                .WithMany(a => a.ActionValues)
                 .HasForeignKey(aa => aa.DecisionRowId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -112,9 +127,9 @@ namespace Persistence
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Domain.Action>()
-                .HasOne(u => u.DecisionRow)
+                .HasOne(u => u.DecisionTable)
                 .WithMany(a => a.Actions)
-                .HasForeignKey(aa => aa.RowId)
+                .HasForeignKey(aa => aa.TableId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Comment>()

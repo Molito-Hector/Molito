@@ -1,5 +1,6 @@
 using Application.Activities;
 using Application.Comments;
+using Application.Organizations;
 using Application.Profiles;
 using Domain;
 
@@ -18,6 +19,11 @@ namespace Application.Core
                 .ForMember(d => d.Properties, o => o.MapFrom(s => s.Properties.Where(c => c.ParentPropertyId == null)));
             CreateMap<RuleProjectDto, RuleProject>();
             CreateMap<RuleProject, RuleProjectListDto>();
+            CreateMap<Organization, Organization>();
+            CreateMap<Organization, OrganizationListDto>();
+            CreateMap<OrganizationListDto, Organization>();
+            CreateMap<Organization, OrganizationWithMembersDto>();
+            CreateMap<OrganizationWithMembersDto, Organization>();
             CreateMap<Rule, Rule>();
             CreateMap<Rule, RuleListDto>();
             CreateMap<Rule, RuleDto>()
@@ -43,6 +49,7 @@ namespace Application.Core
             CreateMap<Condition, SubConditionDto>();
             CreateMap<SubConditionDto, Condition>();
             CreateMap<ConditionValue, ConditionValueDto>();
+            CreateMap<ActionValue, ActionValueDto>();
             CreateMap<RuleProperty, RulePropertyDto>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()));
             CreateMap<RuleProperty, SubpropertyDto>()
@@ -58,6 +65,11 @@ namespace Application.Core
                 .ForMember(d => d.FollowingCount, o => o.MapFrom(s => s.AppUser.Followings.Count))
                 .ForMember(d => d.Following, o => o.MapFrom(s => s.AppUser.Followers.Any(x => x.Observer.UserName == currentUsername)));
             CreateMap<RuleProjectMember, RuleProjectMemberDto>()
+                .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.AppUser.DisplayName))
+                .ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser.UserName))
+                .ForMember(d => d.Bio, o => o.MapFrom(s => s.AppUser.Bio))
+                .ForMember(d => d.Image, o => o.MapFrom(s => s.AppUser.Photos.FirstOrDefault(x => x.IsMain).Url));
+            CreateMap<OrganizationMember, OrganizationMemberDto>()
                 .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.AppUser.DisplayName))
                 .ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser.UserName))
                 .ForMember(d => d.Bio, o => o.MapFrom(s => s.AppUser.Bio))

@@ -21,7 +21,7 @@ namespace Domain
         public string ModificationValue { get; set; }
         public Guid? ConditionId { get; set; }
         public Condition Condition { get; set; }
-        public Guid? RowId { get; set; }
-        public DecisionRow DecisionRow { get; set; }
+        public Guid? TableId { get; set; }
+        public DecisionTable DecisionTable { get; set; }
     }
 }

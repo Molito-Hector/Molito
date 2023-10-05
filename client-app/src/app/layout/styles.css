@@ -39,4 +39,28 @@ body {
   font-weight: normal;
 }
 
+.overrideStyle>input {
+  border: none !important;
+  background-color: #f7f7f7 !important;
+  outline: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.overrideStyle>input:hover {
+  border: none !important;
+  outline: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: #e0e0e0 !important;
+}
+
+.deletable-column:hover {
+  opacity: 1 !important;
+}
+
 /*end home page styles*/

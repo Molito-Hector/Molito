@@ -1,7 +1,5 @@
 using Application.Conditions;
 using Application.Core;
-using Application.Interfaces;
-using AutoMapper;
 using Domain;
 using FluentValidation;
 using MediatR;
@@ -29,12 +27,8 @@ namespace Application.DecisionTables
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            private readonly IMapper _mapper;
-            private readonly IUserAccessor _userAccessor;
-            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
+            public Handler(DataContext context)
             {
-                _userAccessor = userAccessor;
-                _mapper = mapper;
                 _context = context;
             }
 
@@ -74,21 +68,6 @@ namespace Application.DecisionTables
                 {
                     await transaction.RollbackAsync();
                     return Result<Unit>.Failure(ex.Message);
-                }
-            }
-
-            private void AddConditions(Condition condition, Guid tableId)
-            {
-                condition.Id = Guid.NewGuid();
-                condition.TableId = tableId;
-
-                if (condition.SubConditions != null)
-                {
-                    foreach (var subCondition in condition.SubConditions)
-                    {
-                        subCondition.ParentConditionId = condition.Id;
-                        AddConditions(subCondition, tableId);
-                    }
                 }
             }
         }

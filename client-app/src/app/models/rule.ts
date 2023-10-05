@@ -20,7 +20,7 @@ export interface Condition {
 
 export interface Action {
     id?: string;
-    rowId?: string;
+    tableId?: string;
     name: string;
     targetProperty: string;
     modificationType: string;

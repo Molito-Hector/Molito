@@ -5,7 +5,7 @@ namespace Domain
         FirstHit,
         MultiHit
     }
-    
+
     public class DecisionTable
     {
         public Guid Id { get; set; }
@@ -16,6 +16,7 @@ namespace Domain
         public EvalType EvaluationType { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public ICollection<Condition> Conditions { get; set; }
+        public ICollection<Action> Actions { get; set; }
         public ICollection<DecisionRow> Rows { get; set; }
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }

@@ -1,7 +1,9 @@
 using Application.Core;
+using Application.Interfaces;
 using Domain;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.RuleProjects
@@ -24,21 +26,27 @@ namespace Application.RuleProjects
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            public Handler(DataContext context)
+            public IUserAccessor _userAccessor { get; set; }
+            public Handler(DataContext context, IUserAccessor userAccessor)
             {
+                _userAccessor = userAccessor;
                 _context = context;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var project = new RuleProject
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == _userAccessor.GetUsername());
+
+                var owner = new RuleProjectMember
                 {
-                    Id = request.RuleProject.Id,
-                    Name = request.RuleProject.Name,
-                    Description = request.RuleProject.Description
+                    AppUser = user,
+                    RuleProject = request.RuleProject,
+                    IsOwner = true
                 };
 
-                _context.RuleProjects.Add(project);
+                request.RuleProject.Members.Add(owner);
+
+                _context.RuleProjects.Add(request.RuleProject);
 
                 var result = await _context.SaveChangesAsync() > 0;
 

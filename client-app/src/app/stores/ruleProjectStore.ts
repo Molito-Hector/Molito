@@ -234,10 +234,11 @@ export default class RuleProjectStore {
         }
     }
 
-    removeProperty = async (id: string) => {
+    removeProperty = async (propId: string) => {
         this.loading = true;
+        const id = this.selectedRuleProject!.id;
         try {
-            await agent.RuleProjects.removeProperty(id);
+            await agent.RuleProjects.removeProperty(id, propId);
             runInAction(() => {
                 this.selectedRuleProject!.properties = (this.selectedRuleProject?.properties ?? []).filter(a => a.id !== id);
                 this.loading = false;

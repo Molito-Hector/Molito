@@ -3,7 +3,7 @@ import agent from "../api/agent";
 import { Pagination, PagingParams } from "../models/pagination";
 import { DTFormValues, DecisionTable } from "../models/decisionTable";
 import { store } from "./store";
-import { Condition } from "../models/rule";
+import { Action, Condition } from "../models/rule";
 
 export default class DecisionTableStore {
     tableRegistry = new Map<string, DecisionTable>();
@@ -89,31 +89,69 @@ export default class DecisionTableStore {
             })
         } catch (error) {
             console.log(error);
+            runInAction(() => {
+                this.loading = false;
+            });
         }
     }
 
     addTableColumn = async (condition: Condition) => {
-        console.log('Starting addTableColumn', condition);
-
         this.loading = true;
         var id = this.selectedTable!.id;
         try {
-            console.log('Before API Call: Current Conditions', this.selectedTable?.conditions);
-
             await agent.DecisionTables.addColumn(id, condition, 'Table');
-
-            console.log('After API Call: Current Conditions', this.selectedTable?.conditions);
-
             runInAction(() => {
                 this.selectedTable?.conditions.push(condition);
                 this.loading = false;
             });
-
-            console.log('After runInAction: Current Conditions', this.selectedTable?.conditions);
         } catch (error) {
             console.log(error);
+            runInAction(() => {
+                this.loading = false;
+            });
         }
     }
+
+    addTableActionColumn = async (action: Action) => {
+        this.loading = true;
+        var id = this.selectedTable!.id;
+        try {
+            await agent.DecisionTables.addActionColumn(id, action, 'Table');
+            runInAction(() => {
+                this.selectedTable?.actions.push(action);
+                this.loading = false;
+            });
+        } catch (error) {
+            console.log(error);
+            runInAction(() => {
+                this.loading = false;
+            });
+        }
+    }
+
+    // editActionColumn = async (action: Action) => {
+    //     this.loading = true;
+    //     var id = this.selectedTable!.id;
+    //     try {
+    //         await agent.DecisionTables.editActionColumn(id, action);
+    //         runInAction(() => {
+    //             if (this.selectedTable) {
+    //                 this.selectedTable.rows.forEach(row => {
+    //                     if (row.actions.length > 0) {
+    //                         row.actions[0].modificationType = action.modificationType;
+    //                         row.actions[0].targetProperty = action.targetProperty;
+    //                     }
+    //                 })
+    //             }
+    //             this.loading = false;
+    //         });
+    //     } catch (error) {
+    //         console.log(error);
+    //         runInAction(() => {
+    //             this.loading = false;
+    //         });
+    //     }
+    // }
 
     deleteTable = async (id: string) => {
         this.loading = true;
@@ -122,6 +160,36 @@ export default class DecisionTableStore {
             runInAction(() => {
                 this.tableRegistry.delete(id);
                 store.ruleProjectStore.remove(id);
+                this.loading = false;
+            })
+        } catch (error) {
+            console.log(error);
+            this.setLoading(false);
+        }
+    }
+
+    deleteColumn = async (id: string) => {
+        this.loading = true;
+        const tableId = this.selectedTable!.id;
+        try {
+            await agent.DecisionTables.deleteColumn(id);
+            runInAction(() => {
+                this.loadTable(tableId);
+                this.loading = false;
+            })
+        } catch (error) {
+            console.log(error);
+            this.setLoading(false);
+        }
+    }
+
+    deleteActionColumn = async (id: string) => {
+        this.loading = true;
+        const tableId = this.selectedTable!.id;
+        try {
+            await agent.DecisionTables.deleteActionColumn(id);
+            runInAction(() => {
+                this.loadTable(tableId);
                 this.loading = false;
             })
         } catch (error) {

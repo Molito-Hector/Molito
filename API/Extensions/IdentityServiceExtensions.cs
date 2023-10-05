@@ -56,8 +56,18 @@ namespace API.Extensions
                 {
                     policy.Requirements.Add(new IsHostRequirement());
                 });
+                opt.AddPolicy("IsRuleProjectOwner", policy =>
+                {
+                    policy.Requirements.Add(new IsRuleProjectOwner());
+                });
+                opt.AddPolicy("IsRuleProjectMember", policy =>
+                {
+                    policy.Requirements.Add(new IsRuleProjectMember());
+                });
             });
             services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>();
+            services.AddTransient<IAuthorizationHandler, IsRuleProjectOwnerHandler>();
+            services.AddTransient<IAuthorizationHandler, IsRuleProjectMemberHandler>();
             services.AddScoped<TokenService>();
 
             return services;

@@ -1,7 +1,5 @@
 using Application.Conditions;
 using Application.Core;
-using Application.Interfaces;
-using AutoMapper;
 using Domain;
 using FluentValidation;
 using MediatR;
@@ -22,18 +20,15 @@ namespace Application.DecisionTables
             public CommandValidator()
             {
                 RuleForEach(x => x.DecisionTable.Conditions).SetValidator(new ConditionValidator());
+                RuleForEach(x => x.DecisionTable.Actions).SetValidator(new ActionValidator());
             }
         }
 
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            private readonly IMapper _mapper;
-            private readonly IUserAccessor _userAccessor;
-            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
+            public Handler(DataContext context)
             {
-                _userAccessor = userAccessor;
-                _mapper = mapper;
                 _context = context;
             }
 
@@ -45,36 +40,14 @@ namespace Application.DecisionTables
                 {
                     foreach (DecisionRow row in request.DecisionTable.Rows)
                     {
-                        var existingRow = await _context.DecisionRows.Include(r => r.Actions).Include(r => r.Values).FirstOrDefaultAsync(r => r.Id == row.Id);
+                        var existingRow = await _context.DecisionRows
+                                                        .Include(r => r.Values)
+                                                        .Include(r => r.ActionValues)
+                                                        .FirstOrDefaultAsync(r => r.Id == row.Id);
                         if (existingRow != null)
                         {
                             // Update scalar properties
                             _context.Entry(existingRow).CurrentValues.SetValues(row);
-
-                            // Update Actions
-                            foreach (var incomingAction in row.Actions)
-                            {
-                                var existingAction = existingRow.Actions.FirstOrDefault(a => a.Id == incomingAction.Id);
-                                if (existingAction != null)
-                                {
-                                    // Update existing action
-                                    _context.Entry(existingAction).CurrentValues.SetValues(incomingAction);
-                                }
-                                else
-                                {
-                                    // Add new action
-                                    existingRow.Actions.Add(incomingAction);
-                                }
-                            }
-
-                            // Remove actions that no longer exist
-                            foreach (var existingAction in existingRow.Actions.ToList())
-                            {
-                                if (!row.Actions.Any(a => a.Id == existingAction.Id))
-                                {
-                                    existingRow.Actions.Remove(existingAction);
-                                }
-                            }
 
                             // Update Values
                             foreach (var incomingValue in row.Values)
@@ -100,6 +73,31 @@ namespace Application.DecisionTables
                                     existingRow.Values.Remove(existingValue);
                                 }
                             }
+
+                            // Update ActionValues
+                            foreach (var incomingValue in row.ActionValues)
+                            {
+                                var existingValue = existingRow.ActionValues.FirstOrDefault(v => v.Id == incomingValue.Id);
+                                if (existingValue != null)
+                                {
+                                    // Update existing value
+                                    _context.Entry(existingValue).CurrentValues.SetValues(incomingValue);
+                                }
+                                else
+                                {
+                                    // Add new action value
+                                    existingRow.ActionValues.Add(incomingValue);
+                                }
+                            }
+
+                            // Remove values that no longer exist
+                            foreach (var existingValue in existingRow.ActionValues.ToList())
+                            {
+                                if (!row.ActionValues.Any(v => v.Id == existingValue.Id))
+                                {
+                                    existingRow.ActionValues.Remove(existingValue);
+                                }
+                            }
                         }
                         else
                         {
@@ -107,7 +105,7 @@ namespace Application.DecisionTables
                             {
                                 Id = row.Id,
                                 TableId = row.TableId,
-                                Actions = row.Actions,
+                                ActionValues = row.ActionValues,
                                 Values = row.Values
                             };
                             _context.DecisionRows.Add(newRow);
@@ -128,21 +126,6 @@ namespace Application.DecisionTables
                 {
                     await transaction.RollbackAsync();
                     return Result<Unit>.Failure(ex.Message);
-                }
-            }
-
-            private void AddConditions(Condition condition, Guid tableId)
-            {
-                condition.Id = Guid.NewGuid();
-                condition.TableId = tableId;
-
-                if (condition.SubConditions != null)
-                {
-                    foreach (var subCondition in condition.SubConditions)
-                    {
-                        subCondition.ParentConditionId = condition.Id;
-                        AddConditions(subCondition, tableId);
-                    }
                 }
             }
         }
