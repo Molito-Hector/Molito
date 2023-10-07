@@ -16,7 +16,7 @@ namespace API.Controllers
             return HandlePagedResult(await Mediator.Send(new List.Query { Params = param }));
         }
 
-        //[Authorize(Policy = "IsRuleProjectMember")]
+        [Authorize(Policy = "IsRuleProjectMember")]
         [HttpGet("{id}")] //api/ruleprojects/{id}
         public async Task<IActionResult> GetRuleProject(Guid id)
         {
@@ -66,9 +66,9 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/updateMember")]
-        public async Task<IActionResult> UpdateMembership(Guid id, string username)
+        public async Task<IActionResult> UpdateMembership(Guid id, UpdateMembershipDto dto)
         {
-            return HandleResult(await Mediator.Send(new UpdateMembership.Command { Id = id, UserName = username }));
+            return HandleResult(await Mediator.Send(new UpdateMembership.Command { Id = id, UserName = dto.Username }));
         }
     }
 }

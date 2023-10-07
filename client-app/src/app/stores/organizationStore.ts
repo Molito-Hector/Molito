@@ -1,7 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Pagination, PagingParams } from "../models/pagination";
-import { RPFormValues, RuleProject, RuleProperty } from "../models/ruleProject";
 import { Profile } from "../models/profile";
 import { OrgFormValues, Organization } from "../models/organization";
 
@@ -73,13 +72,13 @@ export default class OrganizationStore {
     }
 
     updateMembership = async (username: string) => {
-        const user = await agent.Account.getUser(username);
+        const user = (await agent.Account.getUser(username)).data;
         this.loading = true;
         try {
-            await agent.Organizations.updateMember(this.selectedOrganization!.id, user.username);
+            await agent.Organizations.updateMember(this.selectedOrganization!.id, username);
             runInAction(() => {
-                if (this.selectedOrganization?.members.some(x => x.username == user.username)) {
-                    this.selectedOrganization.members = this.selectedOrganization.members?.filter(a => a.username !== user.username);
+                if (this.selectedOrganization?.members.some(x => x.username === username)) {
+                    this.selectedOrganization.members = this.selectedOrganization.members?.filter(a => a.username !== username);
                 } else {
                     const member = new Profile(user!);
                     this.selectedOrganization?.members?.push(member);
@@ -134,7 +133,7 @@ export default class OrganizationStore {
     //     }
     // }
 
-    clearSelectedRuleProject = () => {
+    clearSelectedOrganization = () => {
         this.selectedOrganization = undefined;
     }
 }

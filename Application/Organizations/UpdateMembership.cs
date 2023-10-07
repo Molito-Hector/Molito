@@ -39,15 +39,17 @@ namespace Application.Organizations
 
                 var ownerUsername = organization.Members.FirstOrDefault(x => x.IsAdmin)?.AppUser?.UserName;
 
-                if (ownerUsername == user.UserName) Result<Unit>.Failure("Admin user can't be removed from the Organization");
+                if (ownerUsername == user.UserName) return Result<Unit>.Failure("Admin user can't be removed from the Organization");
 
                 var membership = organization.Members.FirstOrDefault(x => x.AppUser.UserName == user.UserName);
+
+                if (membership != null && membership.Organization.Name != organization.Name) return Result<Unit>.Failure("User belongs to a different Organization");
 
                 if (membership != null && ownerUsername != user.UserName)
                     organization.Members.Remove(membership);
 
                 if (membership == null)
-                {
+                {                    
                     membership = new OrganizationMember
                     {
                         AppUser = user,

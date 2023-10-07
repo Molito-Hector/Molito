@@ -25,7 +25,7 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await _userManager.Users.Include(p => p.Photos)
+            var user = await _userManager.Users.Include(p => p.Photos).Include(u => u.Organization)
                 .FirstOrDefaultAsync(x => x.Email == loginDto.Email);
 
             if (user == null) return Unauthorized();
@@ -40,7 +40,7 @@ namespace API.Controllers
             return Unauthorized();
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin, OrgAdmin")]
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
@@ -77,18 +77,18 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-            var user = await _userManager.Users.Include(p => p.Photos)
+            var user = await _userManager.Users.Include(p => p.Photos).Include(u => u.Organization)
                 .FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
             return CreateUserObject(user);
         }
 
         [Authorize]
-        [HttpGet("/getUser/{username}")]
-        public async Task<ActionResult<UserDto>> GetUser(string username)
+        [HttpGet("getUser")]
+        public async Task<ActionResult<UserDto>> GetUser([FromQuery] UpdateMembershipDto dto)
         {
-            var user = await _userManager.Users.Include(p => p.Photos)
-                .FirstOrDefaultAsync(x => x.UserName == username);
+            var user = await _userManager.Users.Include(p => p.Photos).Include(u => u.Organization)
+                .FirstOrDefaultAsync(x => x.UserName == dto.Username);
 
             return CreateUserObject(user);
         }
@@ -101,7 +101,8 @@ namespace API.Controllers
                 Image = user?.Photos?.FirstOrDefault(x => x.IsMain)?.Url,
                 Token = _tokenService.CreateToken(user),
                 Username = user.UserName,
-                Roles = (ICollection<string>)_userManager.GetRolesAsync(user).Result
+                Roles = (ICollection<string>)_userManager.GetRolesAsync(user).Result,
+                OrgId = user.Organization?.OrganizationId ?? Guid.Empty
             };
         }
     }

@@ -11,6 +11,7 @@ import RuleDetails from "../../features/rules/details/RuleDetails";
 import RuleForm from "../../features/rules/form/RuleForm";
 import RuleProjectDetails from "../../features/ruleProjects/details/RuleProjectDetails";
 import DTDetails from "../../features/decisionTables/DTDetails";
+import OrganizationManagement from "../../features/organizations/OrganizationManagement";
 
 export const routes: RouteObject[] = [
     {
@@ -24,7 +25,8 @@ export const routes: RouteObject[] = [
                     { path: 'rules/:id', element: <RuleDetails /> },
                     { path: 'tables/:id', element: <DTDetails /> },
                     { path: 'ruleprojects/:id', element: <RuleProjectDetails /> },
-                    { path: 'createRule', element: <RuleForm key='create' /> }
+                    { path: 'createRule', element: <RuleForm key='create' /> },
+                    { path: 'organization', element: <OrganizationManagement /> }
                 ]
             },
             { path: 'not-found', element: <NotFound /> },

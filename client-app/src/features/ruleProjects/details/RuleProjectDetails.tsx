@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import RPGeneralTab from "./Tabs/RPGeneralTab";
 import RPDataModelTab from "./Tabs/RPDataModelTab";
 import RPRulesTab from "./Tabs/RPRulesTab";
+import RPMembersTab from "./Tabs/RPMembersTab";
 
 export default observer(function RuleProjectDetails() {
 
@@ -35,6 +36,10 @@ export default observer(function RuleProjectDetails() {
         {
             menuItem: "Rules",
             render: () => <RPRulesTab ruleProject={ruleProject} />,
+        },
+        {
+            menuItem: "Members",
+            render: () => <RPMembersTab ruleProject={ruleProject} />,
         }
     ];
 

@@ -39,9 +39,9 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/updateMember")]
-        public async Task<IActionResult> UpdateMembership(Guid id, string username)
+        public async Task<IActionResult> UpdateMembership(Guid id, UpdateMembershipDto dto)
         {
-            return HandleResult(await Mediator.Send(new UpdateMembership.Command { Id = id, UserName = username }));
+            return HandleResult(await Mediator.Send(new UpdateMembership.Command { Id = id, UserName = dto.Username }));
         }
     }
 }

@@ -27,8 +27,6 @@ namespace Application.RuleProjects
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var requester = await _context.Users.FirstOrDefaultAsync(x => x.UserName == _userAccessor.GetUsername());
-
                 var ruleProject = await _context.RuleProjects
                     .Include(a => a.Members).ThenInclude(u => u.AppUser)
                     .FirstOrDefaultAsync(x => x.Id == request.Id);
@@ -39,9 +37,9 @@ namespace Application.RuleProjects
 
                 if (user == null) return null;
 
-                if (user.Organization.OrganizationId != requester.Organization.OrganizationId) return Result<Unit>.Failure("User is not part of the same Organization");
-
                 var ownerUsername = ruleProject.Members.FirstOrDefault(x => x.IsOwner)?.AppUser?.UserName;
+
+                if (ownerUsername == user.UserName) return Result<Unit>.Failure("Owner can't be removed from the Rule Project");
 
                 var membership = ruleProject.Members.FirstOrDefault(x => x.AppUser.UserName == user.UserName);
 

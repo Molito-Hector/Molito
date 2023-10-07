@@ -82,7 +82,7 @@ const Activities = {
 const Organizations = {
     create: (organization: OrgFormValues) => requests.post<void>('/organizations', organization),
     details: (id: string) => requests.get<Organization>(`/organizations/${id}`),
-    updateMember: (id: string, username: string) => requests.post<void>(`/organizations/${id}/updateMember`, username)
+    updateMember: (id: string, username: string) => requests.post<void>(`/organizations/${id}/updateMember`, { username })
 }
 
 const Rules = {
@@ -100,7 +100,7 @@ const RuleProjects = {
     delete: (id: string) => requests.del<void>(`/ruleprojects/${id}`),
     addProperties: (id: string, properties: RuleProperty[]) => requests.post<void>(`/ruleprojects/${id}/addProperties`, properties),
     removeProperty: (id: string, propId: string) => requests.del<void>(`/ruleprojects/${id}/removeProperty/${propId}`),
-    updateMember: (id: string, username: string) => requests.post<void>(`/ruleprojects/${id}/updateMember`, username)
+    updateMember: (id: string, username: string) => requests.post<void>(`/ruleprojects/${id}/updateMember`, { username })
 }
 
 const DecisionTables = {
@@ -117,7 +117,7 @@ const DecisionTables = {
 
 const Account = {
     current: () => requests.get<User>('/account'),
-    getUser: (username: string) => requests.get<User>(`/account/getUser/${username}`),
+    getUser: (username: string) => axios.get<User>('/account/getUser', { params: { Username: username } }),
     login: (user: UserFormValues) => requests.post<User>('/account/login', user),
     register: (user: UserFormValues) => requests.post<User>('/account/register', user)
 }

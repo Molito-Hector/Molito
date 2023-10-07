@@ -41,6 +41,7 @@ export default class UserStore {
 
     logout = () => {
         store.commonStore.setToken(null);
+        store.ruleProjectStore.reset();
         this.user = null;
         router.navigate('/');
     }
