@@ -11,15 +11,22 @@ import RPMembersTab from "./Tabs/RPMembersTab";
 
 export default observer(function RuleProjectDetails() {
 
-    const { ruleProjectStore } = useStore();
+    const { ruleProjectStore, userStore } = useStore();
+    const { user } = userStore;
     const { selectedRuleProject: ruleProject, loadRuleProject, loadingInitial, clearSelectedRuleProject } = ruleProjectStore;
     const { id } = useParams();
-    const [activeTab, setActiveTab] = useState(0);
+    const [activeTab, setActiveTab] = useState(() => {
+        return Number(localStorage.getItem('lastActiveTab') || 0);
+    });
 
     useEffect(() => {
         if (id) loadRuleProject(id);
         return () => clearSelectedRuleProject();
     }, [id, loadRuleProject, clearSelectedRuleProject])
+
+    useEffect(() => {
+        localStorage.setItem('lastActiveTab', activeTab.toString());
+    }, [activeTab]);
 
     if (loadingInitial) return <LoadingComponent />;
     if (!ruleProject) return <LoadingComponent content="Error loading project" />;
@@ -36,12 +43,15 @@ export default observer(function RuleProjectDetails() {
         {
             menuItem: "Rules",
             render: () => <RPRulesTab ruleProject={ruleProject} />,
-        },
-        {
-            menuItem: "Members",
-            render: () => <RPMembersTab ruleProject={ruleProject} />,
         }
     ];
+
+    if (user?.username === ruleProject?.owner) {
+        panes.push({
+            menuItem: "Members",
+            render: () => <RPMembersTab ruleProject={ruleProject} />,
+        });
+    }
 
     return (
         <Segment clearing raised>

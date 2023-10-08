@@ -11,6 +11,7 @@ export interface RuleProject {
     standardRules: Rule[];
     decisionTables: DecisionTable[];
     members: Profile[];
+    owner: string;
 }
 
 export interface RuleProperty {

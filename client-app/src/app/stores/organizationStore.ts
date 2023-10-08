@@ -92,32 +92,24 @@ export default class OrganizationStore {
         }
     }
 
-    // updateRule = async (rule: RuleFormValues) => {
-    //     try {
-    //         const ruleToUpdate = {
-    //             ...rule,
-    //             conditions: rule.conditions.map(c => ({
-    //                 ...c,
-    //                 logicalOperator: c.logicalOperator,
-    //                 subConditions: c.subConditions?.map(sub => ({
-    //                     ...sub,
-    //                     logicalOperator: sub.logicalOperator
-    //                 }))
-    //             })),
-    //             actions: rule.actions.map(a => ({ ...a })),
-    //         };
-    //         await agent.Rules.update(ruleToUpdate);
-    //         runInAction(() => {
-    //             if (rule.id) {
-    //                 let updatedRule = { ...this.getRule(rule.id), ...rule }
-    //                 this.ruleRegistry.set(rule.id, updatedRule as Rule);
-    //                 this.selectedRule = updatedRule as Rule;
-    //             }
-    //         })
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
+    updateOrg = async (org: OrgFormValues) => {
+        this.loading = true;
+        const id = this.selectedOrganization?.id;
+        try {
+            await agent.Organizations.edit(id!, org);
+            runInAction(() => {
+                if (org.id) {
+                    let updatedOrg = { ...this.getOrganization(org.id), ...org }
+                    this.organizationRegistry.set(org.id, updatedOrg as Organization);
+                    this.selectedOrganization = updatedOrg as Organization;
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        } finally {
+            runInAction(() => this.loading = false);
+        }
+    }
 
     // deleteRuleProject = async (id: string) => {
     //     this.loading = true;

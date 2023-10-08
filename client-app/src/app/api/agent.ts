@@ -81,6 +81,7 @@ const Activities = {
 
 const Organizations = {
     create: (organization: OrgFormValues) => requests.post<void>('/organizations', organization),
+    edit: (id: string, organization: OrgFormValues) => requests.put<void>(`/organizations/${id}`, organization),
     details: (id: string) => requests.get<Organization>(`/organizations/${id}`),
     updateMember: (id: string, username: string) => requests.post<void>(`/organizations/${id}/updateMember`, { username })
 }

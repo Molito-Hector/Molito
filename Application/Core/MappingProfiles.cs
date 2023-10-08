@@ -16,6 +16,7 @@ namespace Application.Core
             CreateMap<Activity, ActivityDto>()
                 .ForMember(d => d.HostUsername, o => o.MapFrom(s => s.Attendees.FirstOrDefault(x => x.IsHost).AppUser.UserName));
             CreateMap<RuleProject, RuleProjectDto>()
+                .ForMember(d => d.Owner, o => o.MapFrom(s => s.Members.Where(m => m.IsOwner == true).FirstOrDefault().AppUser.UserName))
                 .ForMember(d => d.Properties, o => o.MapFrom(s => s.Properties.Where(c => c.ParentPropertyId == null)));
             CreateMap<RuleProjectDto, RuleProject>();
             CreateMap<RuleProject, RuleProjectListDto>();
@@ -76,6 +77,7 @@ namespace Application.Core
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.AppUser.Photos.FirstOrDefault(x => x.IsMain).Url));
             CreateMap<AppUser, Profiles.Profile>()
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.FirstOrDefault(x => x.IsMain).Url))
+                .ForMember(d => d.OrgName, o => o.MapFrom(s => s.Organization.Organization.Name))
                 .ForMember(d => d.FollowersCount, o => o.MapFrom(s => s.Followers.Count))
                 .ForMember(d => d.FollowingCount, o => o.MapFrom(s => s.Followings.Count))
                 .ForMember(d => d.Following, o => o.MapFrom(s => s.Followers.Any(x => x.Observer.UserName == currentUsername)));

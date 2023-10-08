@@ -32,7 +32,6 @@ export default observer(function RPRulesTab({ ruleProject }: Props) {
                 <Dropdown text='New' icon={'plus'} item>
                     <Dropdown.Menu>
                         <Dropdown.Item text='Decision Table' onClick={() => handleOpenModal('Decision Table')} />
-                        <Dropdown.Item text='Standard Rule' onClick={() => handleOpenModal('Standard Rule')} />
                     </Dropdown.Menu>
                 </Dropdown>
                 <CreateModal ruleProjectId={ruleProject.id} open={modalOpen} onClose={handleCloseModal} type={ruleType} />

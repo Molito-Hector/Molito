@@ -10,6 +10,7 @@ namespace Domain
         public ICollection<RuleListDto> StandardRules { get; set; }
         public ICollection<DecisionTableListDto> DecisionTables { get; set; }
         public ICollection<RuleProjectMemberDto> Members { get; set; }
+        public string Owner { get; set; }
     }
 
     public class RuleProjectListDto

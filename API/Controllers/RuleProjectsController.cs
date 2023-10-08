@@ -65,6 +65,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new EditProperty.Command { RuleProperty = property }));
         }
 
+        [Authorize(Policy = "IsRuleProjectOwner")]
         [HttpPost("{id}/updateMember")]
         public async Task<IActionResult> UpdateMembership(Guid id, UpdateMembershipDto dto)
         {
