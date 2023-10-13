@@ -19,6 +19,7 @@ export default class OrganizationStore {
     }
 
     loadOrganization = async (id: string) => {
+        console.log("Loading: " + id);
         let organization = this.getOrganization(id);
         if (organization && organization.name !== undefined) {
             this.selectedOrganization = organization;

@@ -1,4 +1,4 @@
-import { Grid, Accordion, Icon, Segment, Button } from "semantic-ui-react";
+import { Icon, Segment, Button, List, Header, Divider } from "semantic-ui-react";
 import { RuleProject, RuleProperty } from "../../../../app/models/ruleProject";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
@@ -6,6 +6,7 @@ import AddPropertyModal from "./AddPropertyModal";
 import { useStore } from "../../../../app/stores/store";
 import { v4 as uuid } from 'uuid';
 import RemovePropertyModal from "./RemovePropertyModal";
+import '../../../../app/layout/styles.css';
 
 
 interface Props {
@@ -14,18 +15,6 @@ interface Props {
 
 export default observer(function DataModelTab({ ruleProject }: Props) {
     const { ruleProjectStore } = useStore();
-    const getDirectionLabel = (direction: string) => {
-        switch (direction) {
-            case "I":
-                return "Input";
-            case "O":
-                return "Output";
-            case "B":
-                return "Bidirectional";
-            default:
-                return "";
-        }
-    };
 
     const [propToDelete, setPropToDelete] = useState<RuleProperty | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -53,79 +42,123 @@ export default observer(function DataModelTab({ ruleProject }: Props) {
         setModalOpen(false);
     };
 
-    const renderProperty = (property: RuleProperty, index: number) => {
-        const directionLabel = getDirectionLabel(property.direction);
-        const title = `${property.name} (${property.type}) - ${directionLabel}`;
-        if (property.subProperties && property.subProperties.length > 0) {
-            return (
-                <>
-                    <Accordion key={property.id}>
-                        <Accordion.Title
-                            active={activeIndex === index}
-                            index={index}
-                            onClick={() => handleClick(index)}
-                        >
-                            <Grid>
-                                <Grid.Column width={8}>
-                                    <Icon name="dropdown" />
-                                    {title}
-                                </Grid.Column>
-                                <Grid.Column textAlign="right" width={8}>
-                                    <Icon
-                                        name="trash"
-                                        onClick={() => handleOpenDeleteModal(property)}
-                                        style={{ cursor: 'pointer' }}
-                                    />
-                                </Grid.Column>
-                            </Grid>
-                        </Accordion.Title>
-                        <Accordion.Content active={activeIndex === index}>
-                            {property.subProperties.map((subProperty, i) =>
-                                renderProperty(subProperty, i)
-                            )}
-                        </Accordion.Content>
-                    </Accordion>
-                </>
-            );
-        } else {
-            return (
-                <>
-                    <Grid>
-                        <Grid.Row>
-                            <Grid.Column width={8}>
-                                <p key={property.id}>{title}</p>
-                            </Grid.Column>
-                            <Grid.Column textAlign="right" width={8}>
-                                <Icon
-                                    name="trash"
-                                    onClick={() => handleOpenDeleteModal(property)}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
-                </>
-            )
-        }
-    };
-
     return (
-        <Grid>
-            <Grid.Column width={16}>
-                <Button color='teal' onClick={() => setModalOpen(true)}>Add Property</Button>
-                <Segment raised>
-                    {ruleProject.properties.map((property, index) =>
-                        renderProperty(property, index)
-                    )}
-
-                    <AddPropertyModal
-                        open={modalOpen}
-                        onClose={() => setModalOpen(false)}
-                        onSubmit={handleAddProperty}
-                    />
-                    <RemovePropertyModal open={deleteModalOpen} onClose={handleCloseDeleteModal} propId={propToDelete?.id || ''} propName={propToDelete?.name || ''} />
-                </Segment>
-            </Grid.Column>
-        </Grid>
+        <>
+            <Button floated="right" color='teal' onClick={() => setModalOpen(true)}>Add Property</Button>
+            <AddPropertyModal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onSubmit={handleAddProperty}
+            />
+            <RemovePropertyModal open={deleteModalOpen} onClose={handleCloseDeleteModal} propId={propToDelete?.id || ''} propName={propToDelete?.name || ''} />
+            <Header as='h3'>
+                <Icon name='arrow down' />
+                <Header.Content>Input Properties</Header.Content>
+            </Header>
+            <Divider />
+            <Segment clearing raised>
+                <List divided relaxed>
+                    {ruleProject.properties.filter(p => p.direction === "I").map((property, index) => (
+                        <List.Item key={property.id}>
+                            <Icon name="trash" color="grey" onClick={() => handleOpenDeleteModal(property)} style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }} className="deletable-column" />
+                            <List.Content>
+                                <List.Header onClick={() => handleClick(index)}>
+                                    {property.name}
+                                </List.Header>
+                                <List.Description>
+                                    {property.type}
+                                </List.Description>
+                                {activeIndex === index && property.subProperties && property.subProperties.length > 0 && (
+                                    <List.List>
+                                        {property.subProperties.map(subProperty => (
+                                            <List.Item key={subProperty.id}>
+                                                <List.Content>
+                                                    <List.Header>
+                                                        {subProperty.name}
+                                                    </List.Header>
+                                                    <List.Description>{subProperty.type}</List.Description>
+                                                </List.Content>
+                                            </List.Item>
+                                        ))}
+                                    </List.List>
+                                )}
+                            </List.Content>
+                        </List.Item>
+                    ))}
+                </List>
+            </Segment>
+            <Header as='h3'>
+                <Icon name='arrow up' />
+                <Header.Content>Output Properties</Header.Content>
+            </Header>
+            <Divider />
+            <Segment clearing raised>
+                <List divided relaxed>
+                    {ruleProject.properties.filter(p => p.direction === "O").map((property, index) => (
+                        <List.Item key={property.id}>
+                            <Icon name="trash" color="grey" onClick={() => handleOpenDeleteModal(property)} style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }} className="deletable-column" />
+                            <List.Content>
+                                <List.Header onClick={() => handleClick(index + 100)}>
+                                    {property.name}
+                                </List.Header>
+                                <List.Description>
+                                    {property.type}
+                                </List.Description>
+                                {activeIndex === index + 100 && property.subProperties && property.subProperties.length > 0 && (
+                                    <List.List>
+                                        {property.subProperties.map(subProperty => (
+                                            <List.Item key={subProperty.id}>
+                                                <List.Content>
+                                                    <List.Header>
+                                                        {subProperty.name}
+                                                    </List.Header>
+                                                    <List.Description>{subProperty.type}</List.Description>
+                                                </List.Content>
+                                            </List.Item>
+                                        ))}
+                                    </List.List>
+                                )}
+                            </List.Content>
+                        </List.Item>
+                    ))}
+                </List>
+            </Segment>
+            <Header as='h3'>
+                <Icon name='arrows alternate vertical' />
+                <Header.Content>Bidirectional Properties</Header.Content>
+            </Header>
+            <Divider />
+            <Segment clearing raised>
+                <List divided relaxed>
+                    {ruleProject.properties.filter(p => p.direction === "B").map((property, index) => (
+                        <List.Item key={property.id}>
+                            <Icon name="trash" color="grey" onClick={() => handleOpenDeleteModal(property)} style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }} className="deletable-column" />
+                            <List.Content>
+                                <List.Header onClick={() => handleClick(index + 200)}>
+                                    {property.name}
+                                </List.Header>
+                                <List.Description>
+                                    {property.type}
+                                </List.Description>
+                                {activeIndex === index + 200 && property.subProperties && property.subProperties.length > 0 && (
+                                    <List.List>
+                                        {property.subProperties.map(subProperty => (
+                                            <List.Item key={subProperty.id}>
+                                                <List.Content>
+                                                    <List.Header>
+                                                        {subProperty.name}
+                                                    </List.Header>
+                                                    <List.Description>{subProperty.type}</List.Description>
+                                                </List.Content>
+                                            </List.Item>
+                                        ))}
+                                    </List.List>
+                                )}
+                            </List.Content>
+                        </List.Item>
+                    ))}
+                </List>
+            </Segment>
+        </>
     );
 })

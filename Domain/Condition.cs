@@ -14,6 +14,7 @@ namespace Domain
         public Guid? RuleId { get; set; }
         public Rule Rule { get; set; }
         public Guid? TableId { get; set; }
+        public int TableColumnIndex { get; set; }
         public DecisionTable DecisionTable { get; set; }
     }
 }

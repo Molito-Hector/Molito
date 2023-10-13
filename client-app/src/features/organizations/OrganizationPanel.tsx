@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Modal, Form, Input, Icon, Header, Divider } from 'semantic-ui-react';
+import { Button, Modal, Form, Input, Header, Divider } from 'semantic-ui-react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../app/stores/store';
 import { Formik } from 'formik';
@@ -24,16 +24,25 @@ const OrganizationPanel = () => {
     return (
         <div>
             <Header as='h1'>Organization Info</Header>
+            <Button floated='right' color='teal' onClick={() => setEditMode(true)}>Edit</Button>
             <Divider />
             {selectedOrganization ? (
                 <>
                     {!editMode ? (
                         <>
-                            <p>{selectedOrganization.name}</p>
-                            <p>{selectedOrganization.description}</p>
-                            <Button icon onClick={() => setEditMode(true)}>
-                                <Icon name='edit' />
-                            </Button>
+                            <Form>
+                                <Form.Field key="name" width={16}>
+                                    <label>Organization Name</label>
+                                    <input value={selectedOrganization.name} readOnly />
+                                </Form.Field>
+                                <Form.Field key="createdAt">
+                                    <label>Description</label>
+                                    <input
+                                        value={selectedOrganization.description}
+                                        readOnly
+                                    />
+                                </Form.Field>
+                            </Form>
                         </>
                     ) : (
                         <Formik
@@ -60,8 +69,8 @@ const OrganizationPanel = () => {
                                             onChange={handleChange}
                                         />
                                     </Form.Field>
-                                    <Button type='submit'>Save Changes</Button>
                                     <Button onClick={() => setEditMode(false)}>Cancel</Button>
+                                    <Button positive type='submit'>Save Changes</Button>
                                 </Form>
                             )}
                         </Formik>

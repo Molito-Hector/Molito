@@ -23,7 +23,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Details.Query { Id = id }));
         }
 
-        [Authorize(Policy = "IsRuleProjectMember")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateRule(Rule rule)
         {

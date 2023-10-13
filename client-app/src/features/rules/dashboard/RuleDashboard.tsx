@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Grid, Loader } from "semantic-ui-react";
+import { Grid, Segment } from "semantic-ui-react";
 import { useStore } from "../../../app/stores/store";
 import { observer } from "mobx-react-lite";
 import { PagingParams } from "../../../app/models/pagination";
@@ -24,27 +24,26 @@ export default observer(function RuleDashboard() {
     }, [loadRuleProjects, ruleProjectRegistry.size])
 
     return (
-        <Grid>
-            <Grid.Column width='16'>
-                {ruleProjectStore.loadingInitial && !loadingNext ? (
-                    <>
-                        <RuleListItemPlaceholder />
-                        <RuleListItemPlaceholder />
-                    </>
-                ) : (
-                    <InfiniteScroll
-                        pageStart={0}
-                        loadMore={handleGetNext}
-                        hasMore={!loadingNext && !!pagination && pagination.currentPage < pagination.totalPages}
-                        initialLoad={false}
-                    >
-                        <RuleList />
-                    </InfiniteScroll>
-                )}
-            </Grid.Column>
-            <Grid.Column width={10}>
-                <Loader active={loadingNext} />
-            </Grid.Column>
-        </Grid>
+        <Segment clearing raised>
+            <Grid>
+                <Grid.Column width='16'>
+                    {ruleProjectStore.loadingInitial && !loadingNext ? (
+                        <>
+                            <RuleListItemPlaceholder />
+                            <RuleListItemPlaceholder />
+                        </>
+                    ) : (
+                        <InfiniteScroll
+                            pageStart={0}
+                            loadMore={handleGetNext}
+                            hasMore={!loadingNext && !!pagination && pagination.currentPage < pagination.totalPages}
+                            initialLoad={false}
+                        >
+                            <RuleList />
+                        </InfiniteScroll>
+                    )}
+                </Grid.Column>
+            </Grid>
+        </Segment>
     )
 })

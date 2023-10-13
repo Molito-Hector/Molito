@@ -35,7 +35,15 @@ namespace Infrastructure.Security
                 parsedGuid = Guid.Parse(idFromContext);
                 if (_httpContextAccessor.HttpContext.Request.RouteValues.Any(x => x.Value.ToString() == "Tables"))
                 {
-                    ruleProjectId = _dbContext.DecisionTables.SingleOrDefault(x => x.Id == parsedGuid).RuleProjectId;
+                    if (_httpContextAccessor.HttpContext.Request.RouteValues.Any(x => x.Value.ToString() == "removeColumn"))
+                    {
+                        ruleProjectId = _dbContext.DecisionTables.SingleOrDefault(x => x.Conditions.Any(c => c.Id == parsedGuid)).RuleProjectId;
+                    }
+                    else if (_httpContextAccessor.HttpContext.Request.RouteValues.Any(x => x.Value.ToString() == "removeActionColumn"))
+                    {
+                        ruleProjectId = _dbContext.DecisionTables.SingleOrDefault(x => x.Actions.Any(a => a.Id == parsedGuid)).RuleProjectId;
+                    }
+                    else { ruleProjectId = _dbContext.DecisionTables.SingleOrDefault(x => x.Id == parsedGuid).RuleProjectId; }
                 }
                 else if (_httpContextAccessor.HttpContext.Request.RouteValues.Any(x => x.Value.ToString() == "Rules"))
                 {

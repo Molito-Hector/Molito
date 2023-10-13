@@ -1,4 +1,4 @@
-import { DecisionRow, DecisionTable } from "../models/decisionTable";
+import { ActionValue, ConditionValue, DecisionRow, DecisionTable } from "../models/decisionTable";
 import { Condition } from "../models/rule";
 import { v4 as uuid } from 'uuid';
 import { RuleProperty } from "../models/ruleProject";
@@ -15,8 +15,8 @@ export const addRowToTable = (table: DecisionTable): DecisionTable => {
         newRow.values.push({
             conditionId: condition.id!,
             value: '',
-            decisionRowId: newRow.id
-        });
+            decisionRowId: newRow.id,
+        } as ConditionValue);
     });
 
     table.actions.forEach(action => {
@@ -24,7 +24,7 @@ export const addRowToTable = (table: DecisionTable): DecisionTable => {
             actionId: action.id!,
             value: '',
             decisionRowId: newRow.id
-        });
+        } as ActionValue);
     });
     return { ...table, rows: [...table.rows, newRow] };
 };

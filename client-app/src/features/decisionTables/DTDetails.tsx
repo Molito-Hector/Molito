@@ -162,7 +162,8 @@ export default observer(function DTDetails() {
             field: field,
             operator: operator,
             value: '',
-            actions: []
+            actions: [],
+            tableColumnIndex: modifiedTable.conditions.length
         };
 
         try {
@@ -242,7 +243,11 @@ export default observer(function DTDetails() {
                     if (!prevState) return;
 
                     const updatedConditions = prevState.conditions.filter(c => c.id !== columnId);
+                    updatedConditions.forEach((cond, idx) => {
+                        cond.tableColumnIndex = idx;
+                    });
                     setEditMode(false);
+                    setDeleteModalOpen(false);
 
                     return {
                         ...prevState,
@@ -256,6 +261,7 @@ export default observer(function DTDetails() {
 
                     const updatedActions = prevState.actions.filter(c => c.id !== columnId);
                     setEditMode(false);
+                    setDeleteModalOpen(false);
 
                     return {
                         ...prevState,
@@ -310,6 +316,7 @@ export default observer(function DTDetails() {
             return newRows;
         });
     };
+
     return (
         <Segment clearing raised>
             <Segment clearing raised>
@@ -353,53 +360,55 @@ export default observer(function DTDetails() {
                 </Segment>
             )}
             <Segment clearing raised>
-                <Table sortable celled striped>
-                    <Table.Header>
-                        <Table.Row>
-                            {conditions.map((condition) => (
-                                <Table.HeaderCell className="hol" key={condition.id}
-                                    sorted={sortState.column === condition.id ? sortState.direction : undefined}
-                                    onClick={() => handleSort('condition', condition.id!)}
-                                >
-                                    Condition: {condition.field} {condition.operator}
-                                    {editMode && (
-                                        <Icon
-                                            name='trash'
-                                            style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }}
-                                            className="deletable-column"
-                                            onClick={() => handleOpenDeleteModal(condition.id!, 'condition')}
-                                        />
-                                    )}
-                                </Table.HeaderCell>
-                            ))}
-                            {actions.map((action) => (
-                                <Table.HeaderCell key={action.id}
-                                    sorted={sortState.column === action.id ? sortState.direction : undefined}
-                                    onClick={() => handleSort('action', action.id!)}
-                                >
-                                    Action: {action.name}
-                                    {editMode && (
-                                        <Icon
-                                            name='trash'
-                                            style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }}
-                                            className="deletable-column"
-                                            onClick={() => handleOpenDeleteModal(action.id!, 'action')}
-                                        />
-                                    )}
-                                </Table.HeaderCell>
-                            ))}
-                        </Table.Row>
-                    </Table.Header>
-                    <DecisionTableBody
-                        rows={sortedRows}
-                        conditions={conditions}
-                        actions={actions}
-                        editMode={editMode}
-                        handleCellValueChange={handleCellValueChange}
-                        handleActionValueChange={handleActionValueChange}
-                        handleDeleteRow={removeRow}
-                    />
-                </Table>
+                <div style={{ maxWidth: '100%', overflowX: 'auto' }}>
+                    <Table sortable celled striped>
+                        <Table.Header>
+                            <Table.Row>
+                                {conditions.slice().sort((a, b) => a.tableColumnIndex! - b.tableColumnIndex!).map((condition) => (
+                                    <Table.HeaderCell className="hol" key={condition.id}
+                                        sorted={sortState.column === condition.id ? sortState.direction : undefined}
+                                        onClick={() => handleSort('condition', condition.id!)}
+                                    >
+                                        Condition: {condition.field} {condition.operator}
+                                        {editMode && (
+                                            <Icon
+                                                name='trash'
+                                                style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }}
+                                                className="deletable-column"
+                                                onClick={() => handleOpenDeleteModal(condition.id!, 'condition')}
+                                            />
+                                        )}
+                                    </Table.HeaderCell>
+                                ))}
+                                {actions.map((action) => (
+                                    <Table.HeaderCell key={action.id}
+                                        sorted={sortState.column === action.id ? sortState.direction : undefined}
+                                        onClick={() => handleSort('action', action.id!)}
+                                    >
+                                        Action: {action.name}
+                                        {editMode && (
+                                            <Icon
+                                                name='trash'
+                                                style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }}
+                                                className="deletable-column"
+                                                onClick={() => handleOpenDeleteModal(action.id!, 'action')}
+                                            />
+                                        )}
+                                    </Table.HeaderCell>
+                                ))}
+                            </Table.Row>
+                        </Table.Header>
+                        <DecisionTableBody
+                            rows={sortedRows}
+                            conditions={conditions}
+                            actions={actions}
+                            editMode={editMode}
+                            handleCellValueChange={handleCellValueChange}
+                            handleActionValueChange={handleActionValueChange}
+                            handleDeleteRow={removeRow}
+                        />
+                    </Table>
+                </div>
             </Segment>
         </Segment>
     )

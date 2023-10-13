@@ -76,17 +76,22 @@ export default class DecisionTableStore {
     }
 
     populateTable = async (table: DecisionTable) => {
+        console.log("Get ready to be populated!");
         this.loading = true;
+
         try {
+            // Send the table to be populated in the backend
             await agent.DecisionTables.populate(table.id, table);
+
+            // Once the table is populated, re-fetch it from the backend to get the generated IDs
+            const updatedTable = await agent.DecisionTables.details(table.id);
+
             runInAction(() => {
-                if (table.id) {
-                    let updatedTable = { ...this.getTable(table.id), ...table }
-                    this.tableRegistry.set(table.id, updatedTable as DecisionTable);
-                    this.selectedTable = updatedTable as DecisionTable;
-                    this.loading = false;
-                }
-            })
+                // Update the frontend state with the persisted table
+                this.tableRegistry.set(updatedTable.id, updatedTable);
+                this.selectedTable = updatedTable;
+                this.loading = false;
+            });
         } catch (error) {
             console.log(error);
             runInAction(() => {

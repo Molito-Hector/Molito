@@ -23,33 +23,36 @@ namespace Application.Interfaces.Strategies
                 var variables = new Dictionary<string, FloatingPoint>();
 
                 var start = action.ModificationValue.IndexOf('{');
-                while (true)
+                if (start != -1)
                 {
-                    int end = action.ModificationValue.IndexOf('}', start);
-                    if (end == -1)
+                    while (true)
                     {
-                        return Result<JObject>.Failure("Unmatched bracket in modification value");
+                        int end = action.ModificationValue.IndexOf('}', start);
+                        if (end == -1)
+                        {
+                            return Result<JObject>.Failure("Unmatched bracket in modification value");
+                        }
+
+                        string propertyName = action.ModificationValue.Substring(start + 1, end - start - 1);
+
+                        var valueRetrieval = GetValueFromDataInput(inputData, propertyName);
+                        if (!valueRetrieval.IsSuccess) return Result<JObject>.Failure(valueRetrieval.Error);
+
+                        var propertyValue = (double)valueRetrieval.Value;
+
+                        string varName = propertyName.Replace(".", "_");
+
+                        action.ModificationValue = action.ModificationValue.Replace("{" + propertyName + "}", varName);
+
+                        variables.Add(varName, propertyValue);
+
+                        var moreCheck = action.ModificationValue.Contains("{");
+                        if (!moreCheck)
+                        {
+                            break;
+                        }
+                        start = action.ModificationValue.IndexOf('{', end);
                     }
-
-                    string propertyName = action.ModificationValue.Substring(start + 1, end - start - 1);
-
-                    var valueRetrieval = GetValueFromDataInput(inputData, propertyName);
-                    if (!valueRetrieval.IsSuccess) return Result<JObject>.Failure(valueRetrieval.Error);
-
-                    var propertyValue = (double)valueRetrieval.Value;
-
-                    string varName = propertyName.Replace(".", "_");
-
-                    action.ModificationValue = action.ModificationValue.Replace("{" + propertyName + "}", varName);
-
-                    variables.Add(varName, propertyValue);
-
-                    var moreCheck = action.ModificationValue.Contains("{");
-                    if (!moreCheck)
-                    {
-                        break;
-                    }
-                    start = action.ModificationValue.IndexOf('{', end);
                 }
 
                 Expression e;

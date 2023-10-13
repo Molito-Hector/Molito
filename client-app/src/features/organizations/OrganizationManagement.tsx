@@ -12,11 +12,11 @@ const OrganizationManagement = () => {
     const { userStore: { user } } = useStore();
 
     useEffect(() => {
-        if (user?.orgId) loadOrganization(user.orgId);
+        if (user?.orgId && user?.orgId !== "00000000-0000-0000-0000-000000000000") loadOrganization(user.orgId);
         return () => clearSelectedOrganization();
     }, [user, loadOrganization, clearSelectedOrganization])
 
-    if (loadingInitial || !org) return <LoadingComponent />;
+    if (loadingInitial) return <LoadingComponent />;
     if (loading) return <LoadingComponent content="Saving changes..." />;
 
     return (
@@ -29,7 +29,9 @@ const OrganizationManagement = () => {
                 </Grid.Column>
                 <Grid.Column width={10}>
                     <Segment raised clearing>
-                        <OrganizationMembersPanel />
+                        {org &&
+                            <OrganizationMembersPanel />
+                        }
                     </Segment>
                 </Grid.Column>
             </Grid>

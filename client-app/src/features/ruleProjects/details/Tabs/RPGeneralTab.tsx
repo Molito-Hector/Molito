@@ -13,11 +13,11 @@ export default observer(function GeneralTab({ ruleProject }: Props) {
             <Grid>
                 <Grid.Column width={8}>
                     <Form>
-                        <Form.Field width={16}>
+                        <Form.Field key="name" width={16}>
                             <label>Name</label>
                             <input value={ruleProject.name} readOnly />
                         </Form.Field>
-                        <Form.Field>
+                        <Form.Field key="createdAt">
                             <label>Created At</label>
                             <input
                                 value={format(ruleProject.createdAt, 'MM/dd/yyyy')}
@@ -28,7 +28,7 @@ export default observer(function GeneralTab({ ruleProject }: Props) {
                 </Grid.Column>
                 <Grid.Column width={8}>
                     <Form>
-                        <Form.Field inline>
+                        <Form.Field inline key="description">
                             <label>Description</label>
                             <Form.TextArea value={ruleProject.description} readOnly />
                         </Form.Field>

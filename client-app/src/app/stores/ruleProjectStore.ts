@@ -228,6 +228,7 @@ export default class RuleProjectStore {
                 });
             })
             this.ruleProjectRegistry.set(this.selectedRuleProject!.id, this.selectedRuleProject!)
+            this.setLoading(false);
         }
         catch (error) {
             console.log(error);
@@ -241,7 +242,8 @@ export default class RuleProjectStore {
         try {
             await agent.RuleProjects.removeProperty(id, propId);
             runInAction(() => {
-                this.selectedRuleProject!.properties = (this.selectedRuleProject?.properties ?? []).filter(a => a.id !== id);
+                this.selectedRuleProject!.properties = this.selectedRuleProject!.properties?.filter(a => a.id !== propId);
+                this.ruleProjectRegistry.set(this.selectedRuleProject!.id, this.selectedRuleProject!)
                 this.loading = false;
             })
         } catch (error) {

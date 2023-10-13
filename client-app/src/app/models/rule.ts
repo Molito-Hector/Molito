@@ -15,6 +15,7 @@ export interface Condition {
     value: string;
     logicalOperator?: string;
     subConditions?: Condition[];
+    tableColumnIndex?: number;
     actions: Action[];
 }
 

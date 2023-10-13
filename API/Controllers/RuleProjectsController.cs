@@ -23,6 +23,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Details.Query { Id = id }));
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateRuleProject(RuleProject ruleProject)
         {
