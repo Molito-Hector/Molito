@@ -5,7 +5,7 @@ export interface Subscription {
     planId: string;
     seatQuantity: number;
     status: number;
-    term: any;
+    term: Date;
     beneficiary: AzureUser;
     purchaser: AzureUser;
 }

@@ -64,10 +64,15 @@ namespace API.Extensions
                 {
                     policy.Requirements.Add(new IsRuleProjectMember());
                 });
+                opt.AddPolicy("RuleExecutionPolicy", policy =>
+                {
+                    policy.Requirements.Add(new RuleExecutionPolicy());
+                });
             });
             services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>();
             services.AddTransient<IAuthorizationHandler, IsRuleProjectOwnerHandler>();
             services.AddTransient<IAuthorizationHandler, IsRuleProjectMemberHandler>();
+            services.AddTransient<IAuthorizationHandler, RuleExecutionPolicyHandler>();
             services.AddScoped<TokenService>();
 
             return services;

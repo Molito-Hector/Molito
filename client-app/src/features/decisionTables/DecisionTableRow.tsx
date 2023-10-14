@@ -1,4 +1,4 @@
-import { Input, Table } from "semantic-ui-react";
+import { Icon, Input, Table } from "semantic-ui-react";
 import { DecisionRow } from "../../app/models/decisionTable";
 import { Action, Condition } from "../../app/models/rule";
 import '../../app/layout/styles.css';
@@ -44,6 +44,16 @@ export const DecisionTableRow: React.FC<Props> = ({ row, conditions, actions, ed
                     )}
                 </Table.Cell>
             ))}
+            {editMode && (
+                <Table.Cell collapsing>
+                    <Icon
+                        name='trash'
+                        style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }}
+                        className="deletable-column"
+                        onClick={() => handleDeleteRow(row.id!)}
+                    />
+                </Table.Cell>
+            )}
         </Table.Row>
     );
 };

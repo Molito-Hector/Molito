@@ -1,58 +1,6 @@
-import { useEffect, useState } from "react";
-import { Accordion, Button, FormField, Header, Segment } from "semantic-ui-react";
-import { useStore } from "../../../app/stores/store";
 import { observer } from "mobx-react-lite";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import LoadingComponent from "../../../app/layout/LoadingComponent";
-import { v4 as uuid } from 'uuid';
-import { Formik, Form } from "formik";
-import * as Yup from 'yup';
-import MyTextInput from "../../../app/common/form/MyTextInput";
-import { RuleFormValues } from "../../../app/models/rule";
-import { ConditionForm } from "./ConditionForm";
 
 export default observer(function RuleForm() {
-    const { ruleStore } = useStore();
-    // const { createRule, updateRule, loadRule, loadingInitial } = ruleStore;
-    const { id } = useParams();
-    const navigate = useNavigate();
-
-    const propertyTypes = [
-        { key: 'type1', text: 'Type 1', value: 'Type1' },
-        { key: 'type2', text: 'Type 2', value: 'Type2' },
-        // ...other property types...
-    ];
-
-    const [rule, setRule] = useState<RuleFormValues>(new RuleFormValues());
-
-    const subConditionSchema = Yup.object().shape({
-        field: Yup.string().required('Condition field is required'),
-        operator: Yup.string().required('Condition operator is required'),
-        value: Yup.string().required('Condition value is required'),
-        logicalOperator: Yup.string(),
-    });
-
-    const conditionSchema = Yup.object().shape({
-        field: Yup.string().required('Condition field is required'),
-        operator: Yup.string().required('Condition operator is required'),
-        value: Yup.string().required('Condition value is required'),
-        logicalOperator: Yup.string().required(),
-        subConditions: Yup.array().of(subConditionSchema),
-    });
-
-    const actionSchema = Yup.object().shape({
-        name: Yup.string().required('Action name is required'),
-    });
-
-    const validationSchema = Yup.object().shape({
-        name: Yup.string().required('The rule name is required'),
-        conditions: Yup.array()
-            .of(conditionSchema)
-            .min(1, `At least 1 condition is required`),
-        actions: Yup.array()
-            .of(actionSchema)
-            .min(1, `At least 1 action is required`),
-    });
 
     // useEffect(() => {
     //     if (id) loadRule(id).then(rule => setRule(new RuleFormValues(rule)));

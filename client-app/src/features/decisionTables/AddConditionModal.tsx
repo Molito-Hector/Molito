@@ -50,7 +50,6 @@ export default function AddConditionModal({ open, ruleProperties, onClose, onSub
                     <Form.Field>
                         <label>Field</label>
                         <select value={field} onChange={(e) => {
-                            console.log("Setting field to: ", e.target.value);
                             setField(e.target.value);
                         }}>
                             {filteredProps.map(prop => (

@@ -20,7 +20,7 @@ export default observer(function ProfileActivities() {
         loadActivities(profile!.username);
     }, [loadActivities, profile])
 
-    const handleTabChange = (e: React.MouseEvent, data: TabProps) => {
+    const handleTabChange = (_: React.MouseEvent, data: TabProps) => {
         loadActivities(profile!.username, panes[data.activeIndex as number].pane.key);
     }
 

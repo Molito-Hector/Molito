@@ -3,6 +3,7 @@ import agent from "../api/agent";
 import { Pagination, PagingParams } from "../models/pagination";
 import { Profile } from "../models/profile";
 import { OrgFormValues, Organization } from "../models/organization";
+import { store } from "./store";
 
 export default class OrganizationStore {
     organizationRegistry = new Map<string, Organization>();
@@ -57,12 +58,15 @@ export default class OrganizationStore {
     }
 
     createOrganization = async (organization: OrgFormValues) => {
+        const user = store.userStore.user;
+        const userProfile = new Profile(user!);
         try {
             const organizationToCreate = {
                 ...organization
             };
             await agent.Organizations.create(organizationToCreate);
             const newOrganization = new Organization(organizationToCreate);
+            newOrganization.members.push(userProfile)
             this.setOrganization(newOrganization);
             runInAction(() => {
                 this.selectedOrganization = newOrganization;
@@ -100,7 +104,7 @@ export default class OrganizationStore {
             await agent.Organizations.edit(id!, org);
             runInAction(() => {
                 if (org.id) {
-                    let updatedOrg = { ...this.getOrganization(org.id), ...org }
+                    const updatedOrg = { ...this.getOrganization(org.id), ...org }
                     this.organizationRegistry.set(org.id, updatedOrg as Organization);
                     this.selectedOrganization = updatedOrg as Organization;
                 }

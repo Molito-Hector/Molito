@@ -2,11 +2,11 @@ import { DecisionTable } from "./decisionTable";
 import { Profile } from "./profile";
 import { Rule } from "./rule";
 
-export interface RuleProject {
+export interface IRuleProject {
     id: string;
     name: string;
     description: string;
-    createdAt: any;
+    createdAt: Date;
     properties: RuleProperty[];
     standardRules: Rule[];
     decisionTables: DecisionTable[];
@@ -22,10 +22,22 @@ export interface RuleProperty {
     subProperties: RuleProperty[];
 }
 
-export class RuleProject implements RuleProject {
-    constructor(init?: RPFormValues) {
-        Object.assign(this, init);
+export class RuleProject implements IRuleProject {
+    constructor(init: RPFormValues) {
+        this.id = init.id!
+        this.name = init.name
+        this.description = init.description
     }
+
+    id: string;
+    name: string;
+    description: string;
+    createdAt: Date = new Date();
+    properties: RuleProperty[] = [];
+    standardRules: Rule[] = [];
+    decisionTables: DecisionTable[] = [];
+    members: Profile[] = [];
+    owner: string = '';
 }
 
 export class RPFormValues {

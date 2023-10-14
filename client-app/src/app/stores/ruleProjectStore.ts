@@ -5,6 +5,7 @@ import { RPFormValues, RuleProject, RuleProperty } from "../models/ruleProject";
 import { DecisionTable } from "../models/decisionTable";
 import { Rule } from "../models/rule";
 import { Profile } from "../models/profile";
+import { store } from "./store";
 
 export default class RuleProjectStore {
     ruleProjectRegistry = new Map<string, RuleProject>();
@@ -57,7 +58,7 @@ export default class RuleProjectStore {
 
     setPredicate = (predicate: string, value: string | Date) => {
         const resetPredicate = () => {
-            this.predicate.forEach((value, key) => {
+            this.predicate.forEach((_, key) => {
                 if (key !== 'startDate') this.predicate.delete(key);
             })
         }
@@ -196,6 +197,7 @@ export default class RuleProjectStore {
     }
 
     createRuleProject = async (ruleProject: RPFormValues) => {
+        const user = store.userStore.user;
         try {
             const ruleProjectToCreate = {
                 ...ruleProject
@@ -203,6 +205,8 @@ export default class RuleProjectStore {
             await agent.RuleProjects.create(ruleProjectToCreate);
             const newRuleProject = new RuleProject(ruleProjectToCreate);
             newRuleProject.createdAt = new Date();
+            newRuleProject.members.push(new Profile(user!));
+            newRuleProject.owner = user!.username;
             this.setRuleProject(newRuleProject);
             runInAction(() => {
                 this.selectedRuleProject = newRuleProject;
@@ -254,7 +258,7 @@ export default class RuleProjectStore {
 
     updateMembership = async (username: string) => {
         const user = (await agent.Account.getUser(username)).data;
-        this.loading = true;
+        runInAction(() => this.loading = true);
         try {
             await agent.RuleProjects.updateMember(this.selectedRuleProject!.id, user.username);
             runInAction(() => {

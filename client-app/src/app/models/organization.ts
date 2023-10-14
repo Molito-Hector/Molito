@@ -1,16 +1,23 @@
 import { Profile } from "./profile";
 
-export interface Organization {
+export interface IOrganization {
     id: string;
     name: string;
     description: string;
     members: Profile[];
 }
 
-export class Organization implements Organization {
-    constructor(init?: OrgFormValues) {
-        Object.assign(this, init);
+export class Organization implements IOrganization {
+    constructor(init: OrgFormValues) {
+        this.id = init.id!
+        this.name = init.name
+        this.description = init.description
     }
+
+    id: string;
+    name: string;
+    description: string;
+    members: Profile[] = [];
 }
 
 export class OrgFormValues {

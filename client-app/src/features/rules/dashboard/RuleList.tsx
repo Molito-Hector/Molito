@@ -52,7 +52,7 @@ export default observer(function ActivityList() {
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
-            <Table celled selectable>
+            <Table celled selectable color='purple'>
                 <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell>Rule Project</Table.HeaderCell>
@@ -72,11 +72,11 @@ export default observer(function ActivityList() {
                             <Table.Cell>{truncate(ruleproject.description)}</Table.Cell>
                             <Table.Cell>{format(ruleproject.createdAt, 'MM/dd/yyyy')}</Table.Cell>
                             <Table.Cell>
-                                <Icon name="edit" />
                                 <Icon
                                     name="trash"
                                     onClick={() => handleOpenDeleteModal(ruleproject)}
-                                    style={{ cursor: 'pointer' }}
+                                    style={{ opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }}
+                                    className="deletable-column"
                                 />
                             </Table.Cell>
                         </Table.Row>

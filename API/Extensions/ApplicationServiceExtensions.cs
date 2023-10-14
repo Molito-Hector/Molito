@@ -23,7 +23,7 @@ namespace API.Extensions
             {
                 var connStr = config.GetConnectionString("DefaultConnection");
 
-                options.UseSqlite(connStr);
+                options.UseNpgsql(connStr);
             });
 
             services.AddCors(opt =>

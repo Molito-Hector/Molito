@@ -17,7 +17,7 @@ export const DecisionTableBody: React.FC<Props> = ({ rows, conditions, actions, 
     return (
         <Table.Body>
             {rows.length > 0 ? (
-                rows.map((row, idx) => (
+                rows.map((row) => (
                     <DecisionTableRow
                         key={row.id}
                         row={row}

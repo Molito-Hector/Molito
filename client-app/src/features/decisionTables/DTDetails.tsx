@@ -181,8 +181,11 @@ export default observer(function DTDetails() {
                 });
                 setEditMode(false);
 
+                const updatedConditions = [...prevState.conditions, newCondition];
+
                 return {
                     ...prevState,
+                    conditions: updatedConditions,
                     rows: updatedRows
                 };
             });
@@ -276,9 +279,6 @@ export default observer(function DTDetails() {
     };
 
     const handleSort = (type: string, columnId: string) => {
-        console.log('sorting');
-        console.log(type + ' ' + columnId);
-
         if (sortState.column === columnId) {
             setSortState(prev => ({
                 column: prev.column,
@@ -292,7 +292,7 @@ export default observer(function DTDetails() {
         }
 
         setSortedRows(prevRows => {
-            let newRows = [...prevRows];
+            const newRows = [...prevRows];
             if (type === 'condition') {
                 newRows.sort((a, b) => {
                     const aValue = a.values.find(val => val.conditionId === columnId)?.value || '';
@@ -365,7 +365,7 @@ export default observer(function DTDetails() {
                         <Table.Header>
                             <Table.Row>
                                 {conditions.slice().sort((a, b) => a.tableColumnIndex! - b.tableColumnIndex!).map((condition) => (
-                                    <Table.HeaderCell className="hol" key={condition.id}
+                                    <Table.HeaderCell className="conditionHeader" key={condition.id}
                                         sorted={sortState.column === condition.id ? sortState.direction : undefined}
                                         onClick={() => handleSort('condition', condition.id!)}
                                     >
@@ -382,6 +382,7 @@ export default observer(function DTDetails() {
                                 ))}
                                 {actions.map((action) => (
                                     <Table.HeaderCell key={action.id}
+                                        className="actionHeader"
                                         sorted={sortState.column === action.id ? sortState.direction : undefined}
                                         onClick={() => handleSort('action', action.id!)}
                                     >
@@ -396,6 +397,9 @@ export default observer(function DTDetails() {
                                         )}
                                     </Table.HeaderCell>
                                 ))}
+                                {editMode && (
+                                    <Table.HeaderCell collapsing></Table.HeaderCell>
+                                )}
                             </Table.Row>
                         </Table.Header>
                         <DecisionTableBody

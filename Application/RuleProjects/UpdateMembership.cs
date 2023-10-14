@@ -27,15 +27,21 @@ namespace Application.RuleProjects
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
+                var requesterName = _userAccessor.GetUsername();
+
+                var requester = await _context.Users.Include(u => u.Organization).FirstOrDefaultAsync(x => x.UserName == requesterName);
+
                 var ruleProject = await _context.RuleProjects
                     .Include(a => a.Members).ThenInclude(u => u.AppUser)
                     .FirstOrDefaultAsync(x => x.Id == request.Id);
 
                 if (ruleProject == null) return null;
 
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == request.UserName);
+                var user = await _context.Users.Include(u => u.Organization).FirstOrDefaultAsync(x => x.UserName == request.UserName);
 
                 if (user == null) return null;
+
+                if (user.Organization == null || user.Organization.OrganizationId == Guid.Empty || user.Organization.OrganizationId == Guid.NewGuid() || user.Organization.OrganizationId != requester.Organization.OrganizationId) return Result<Unit>.Failure("User doesn't belong to the same Organization");
 
                 var ownerUsername = ruleProject.Members.FirstOrDefault(x => x.IsOwner)?.AppUser?.UserName;
 

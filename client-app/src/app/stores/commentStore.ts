@@ -14,8 +14,8 @@ export default class CommentStore {
     createHubConnection = (ruleId: string) => {
         if (store.ruleStore.selectedRule) {
             this.hubConnection = new HubConnectionBuilder()
-                .withUrl(process.env.REACT_APP_CHAT_URL + '?ruleId=' + ruleId, {
-                    accessTokenFactory: () => store.userStore.user?.token!
+                .withUrl(import.meta.env.VITE_CHAT_URL + '?ruleId=' + ruleId, {
+                    accessTokenFactory: () => store.userStore.user?.token as string
                 })
                 .withAutomaticReconnect()
                 .configureLogging(LogLevel.Information)
@@ -50,7 +50,7 @@ export default class CommentStore {
         this.stopHubConnection();
     }
 
-    addComment = async (values: any) => {
+    addComment = async (values: { body: string, ruleId?: string }) => {
         values.ruleId = store.ruleStore.selectedRule?.id;
         try {
             await this.hubConnection?.invoke('SendComment', values);

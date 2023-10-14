@@ -58,7 +58,7 @@ export default observer(function DataModelTab({ ruleProject }: Props) {
             <Divider />
             <Segment clearing raised>
                 <List divided relaxed>
-                    {ruleProject.properties.filter(p => p.direction === "I").map((property, index) => (
+                    {(ruleProject.properties || []).filter(p => p.direction === "I").map((property, index) => (
                         <List.Item key={property.id}>
                             <Icon name="trash" color="grey" onClick={() => handleOpenDeleteModal(property)} style={{ float: 'right', opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }} className="deletable-column" />
                             <List.Content>

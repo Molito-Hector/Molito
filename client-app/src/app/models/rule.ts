@@ -1,11 +1,11 @@
-export interface Rule {
+export interface IRule {
     id: string;
     name: string;
     description: string;
-    createdAt: any;
+    createdAt: Date;
     conditions: Condition[];
     type?: string;
-    [key: string]: any;
+    [key: string]: Date | Condition[] | string | undefined;
 }
 
 export interface Condition {
@@ -28,10 +28,20 @@ export interface Action {
     modificationValue: string;
 }
 
-export class Rule implements Rule {
-    constructor(init?: RuleFormValues) {
-        Object.assign(this, init);
+export class Rule implements IRule {
+    constructor(init: RuleFormValues) {
+        this.id = init.id!
+        this.name = init.name
+        this.description = init.description
     }
+
+    id: string;
+    name: string;
+    description: string;
+    createdAt: Date = new Date();
+    conditions: Condition[] = [];
+    type?: string;
+    [key: string]: Date | Condition[] | string | undefined;
 }
 
 export class RuleFormValues {

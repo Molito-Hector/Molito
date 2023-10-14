@@ -11,13 +11,13 @@ import { RPFormValues, RuleProject, RuleProperty } from "../models/ruleProject";
 import { DTFormValues, DecisionTable } from "../models/decisionTable";
 import { OrgFormValues, Organization } from "../models/organization";
 
-axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 axios.interceptors.response.use(async response => {
     const pagination = response.headers['pagination'];
     if (pagination) {
         response.data = new PaginatedResult(response.data, JSON.parse(pagination));
-        return response as AxiosResponse<PaginatedResult<any>>;
+        return response as AxiosResponse<PaginatedResult<unknown>>;
     }
     return response;
 }, (error: AxiosError) => {
@@ -25,7 +25,7 @@ axios.interceptors.response.use(async response => {
     switch (status) {
         case 400:
             if (!data.errors) toast.error(data);
-            else if (config.method === "get" && data.errors.hasOwnProperty("id")) {
+            else if (config.method === "get" && Object.prototype.hasOwnProperty.call(data.errors, 'id')) {
                 router.navigate("/not-found");
                 break;
             } else if (data.errors) {
@@ -65,8 +65,8 @@ axios.interceptors.request.use(config => {
 
 const requests = {
     get: <T>(url: string) => axios.get<T>(url).then(responseBody),
-    post: <T>(url: string, body: {}) => axios.post<T>(url, body).then(responseBody),
-    put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(responseBody),
+    post: <T>(url: string, body: object) => axios.post<T>(url, body).then(responseBody),
+    put: <T>(url: string, body: object) => axios.put<T>(url, body).then(responseBody),
     del: <T>(url: string) => axios.delete<T>(url).then(responseBody),
 }
 
@@ -126,7 +126,7 @@ const Account = {
 const Profiles = {
     get: (username: string) => requests.get<Profile>(`/profiles/${username}`),
     uploadPhoto: (file: Blob) => {
-        let formData = new FormData();
+        const formData = new FormData();
         formData.append('File', file);
         return axios.post<Photo>('photos', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }

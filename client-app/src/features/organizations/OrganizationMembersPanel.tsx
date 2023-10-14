@@ -63,7 +63,7 @@ const OrganizationMembersPanel = () => {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {selectedOrganization?.members.map((member) => (
+                    {(selectedOrganization?.members || []).map((member) => (
                         <Table.Row key={member.username}>
                             <Table.Cell>{member.username}</Table.Cell>
                             <Table.Cell>{member.displayName}</Table.Cell>

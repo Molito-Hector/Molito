@@ -1,8 +1,8 @@
-import { Segment, Button, Modal, Input, Table, Icon } from "semantic-ui-react";
+import { Segment, Button, Modal, Table, Icon, Form } from "semantic-ui-react";
 import { RuleProject } from '../../../../app/models/ruleProject';
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../../../app/stores/store";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import '../../../../app/layout/styles.css';
 import RemoveMemberModal from "./RemoveMemberModal";
 
@@ -11,8 +11,10 @@ interface Props {
 }
 
 export default observer(function GeneralTab({ ruleProject }: Props) {
-    const { ruleProjectStore } = useStore();
+    const { ruleProjectStore, organizationStore } = useStore();
     const { updateMembership, loading } = ruleProjectStore;
+    const { selectedOrganization: organization, loadOrganization, clearSelectedOrganization } = organizationStore;
+    const { userStore: { user } } = useStore();
     const [open, setOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [username, setUsername] = useState('');
@@ -22,6 +24,11 @@ export default observer(function GeneralTab({ ruleProject }: Props) {
         await updateMembership(username);
         setOpen(false);
     };
+
+    useEffect(() => {
+        if (user?.orgId && user?.orgId !== "00000000-0000-0000-0000-000000000000") loadOrganization(user.orgId);
+        return () => clearSelectedOrganization();
+    }, [user, loadOrganization, clearSelectedOrganization])
 
     const handleOpenDeleteModal = (member: string) => {
         setMemberToRemove(member);
@@ -37,6 +44,19 @@ export default observer(function GeneralTab({ ruleProject }: Props) {
         setDeleteModalOpen(false);
     }
 
+    const isInitialOpen = useRef(true);
+
+    useEffect(() => {
+        if (open && isInitialOpen.current && organization!.members.length > 0) {
+            setUsername(organization!.members[0].username);
+            isInitialOpen.current = false;
+        }
+
+        if (!open) {
+            isInitialOpen.current = true;
+        }
+    }, [open, organization]);
+
     return (
         <Segment clearing raised>
             <RemoveMemberModal loading={loading} memberName={memberToRemove} onClose={handleCloseModal} onSubmit={handleRemoveMember} open={deleteModalOpen} />
@@ -48,12 +68,21 @@ export default observer(function GeneralTab({ ruleProject }: Props) {
             >
                 <Modal.Header>Add/Remove Member</Modal.Header>
                 <Modal.Content>
-                    <Input
-                        placeholder='Username'
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                    <Button onClick={() => handleAddMember(username)}>Add</Button>
+                    <Form>
+                        <Form.Field>
+                            <label>User</label>
+                            <select value={username} onChange={(e) => {
+                                setUsername(e.target.value);
+                            }}>
+                                {organization?.members.map(member => (
+                                    <option key={member.username} value={member.username}>
+                                        {member.displayName}
+                                    </option>
+                                ))}
+                            </select>
+                        </Form.Field>
+                    </Form>
+                    <Button positive floated='right' onClick={() => handleAddMember(username)}>Add</Button>
                 </Modal.Content>
             </Modal>
             <Table celled striped fixed color='purple'>

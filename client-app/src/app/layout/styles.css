@@ -63,4 +63,14 @@ body {
   opacity: 1 !important;
 }
 
+.conditionHeader {
+  background-color: #7091F5 !important;
+  color: white !important;
+}
+
+.actionHeader {
+  background-color: #793FDF !important;
+  color: white !important;
+}
+
 /*end home page styles*/

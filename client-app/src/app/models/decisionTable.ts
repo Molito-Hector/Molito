@@ -1,18 +1,18 @@
 import { Action, Condition } from "./rule";
 
-export interface DecisionTable {
+export interface IDecisionTable {
     id: string;
     name: string;
     description: string;
     evaluationType: string;
-    createdAt: any;
+    createdAt: Date;
     conditions: Condition[];
     actions: Action[];
     rows: DecisionRow[];
     ruleProjectId: string;
 }
 
-export interface DecisionRow {
+export interface IDecisionRow {
     id?: string;
     tableId?: string;
     values: ConditionValue[];
@@ -33,14 +33,32 @@ export interface ActionValue {
     value: string;
 }
 
-export class DecisionTable implements DecisionTable {
-    constructor(init?: DTFormValues) {
-        Object.assign(this, init);
+export class DecisionTable implements IDecisionTable {
+    constructor(init: DTFormValues) {
+        this.id = init.id!
+        this.actions = init.actions
+        this.conditions = init.conditions
+        this.description = init.description
+        this.evaluationType = init.evaluationType
+        this.name = init.name
+        this.rows = init.rows
+        this.ruleProjectId = init.ruleProjectId
     }
+
+    id: string;
+    name: string;
+    description: string;
+    evaluationType: string;
+    createdAt: Date = new Date();
+    conditions: Condition[];
+    actions: Action[];
+    rows: DecisionRow[];
+    ruleProjectId: string;
 }
 
-export class DecisionRow implements DecisionRow {
+export class DecisionRow implements IDecisionRow {
     id?: string = undefined;
+    tableId?: string = undefined;
     values: ConditionValue[] = [{ conditionId: '', id: '', value: '' }];
     actionValues: ActionValue[] = [{ id: '', actionId: '', value: '' }];
 

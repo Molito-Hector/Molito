@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, Form, Button } from "semantic-ui-react";
-import { Formik, FieldArray, ArrayHelpers } from "formik";
+import { Formik, FieldArray, ArrayHelpers, FormikTouched, FormikErrors } from "formik";
 import * as Yup from "yup";
 import { RuleProperty } from "../../../../app/models/ruleProject";
 
@@ -79,7 +79,7 @@ const AddPropertyModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
                 selection
                 options={PROPERTY_TYPES}
                 value={values.type}
-                onChange={(e, { value }) => setFieldValue('type', value)}
+                onChange={(_, { value }) => setFieldValue('type', value)}
                 error={touched.type && errors.type}
               />
               <Form.Dropdown
@@ -89,7 +89,7 @@ const AddPropertyModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
                 selection
                 options={DIRECTIONS}
                 value={values.direction}
-                onChange={(e, { value }) => setFieldValue('direction', value)}
+                onChange={(_, { value }) => setFieldValue('direction', value)}
                 error={touched.type && errors.type}
               />
 
@@ -106,7 +106,7 @@ const AddPropertyModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
                             value={subProperty.name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={(touched.subProperties as any)?.[index]?.name && (errors.subProperties as any)?.[index]?.name}
+                            error={(touched.subProperties as FormikTouched<RuleProperty>[] | undefined)?.[index]?.name && (errors.subProperties as FormikErrors<RuleProperty>[] | undefined)?.[index]?.name}
                           />
                           <Form.Dropdown
                             label="Subproperty Type"
@@ -115,8 +115,8 @@ const AddPropertyModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
                             selection
                             options={PROPERTY_TYPES}
                             value={subProperty.type}
-                            onChange={(e, { value }) => setFieldValue(`subProperties.${index}.type`, value)}
-                            error={(touched.subProperties as any)?.[index]?.type && (errors.subProperties as any)?.[index]?.type}
+                            onChange={(_, { value }) => setFieldValue(`subProperties.${index}.type`, value)}
+                            error={(touched.subProperties as FormikTouched<RuleProperty>[] | undefined)?.[index]?.type && (errors.subProperties as FormikErrors<RuleProperty>[] | undefined)?.[index]?.type}
                           />
                           <Button
                             type="button"

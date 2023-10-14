@@ -81,9 +81,9 @@ export function RulesTable({ data }: TableProps) {
       const sortA = a[state.sortColumn];
       const sortB = b[state.sortColumn];
 
-      if (sortA < sortB) {
+      if (sortA! < sortB!) {
         return -1 * isAscending;
-      } else if (sortA > sortB) {
+      } else if (sortA! > sortB!) {
         return 1 * isAscending;
       } else {
         return 0;
@@ -126,7 +126,10 @@ export function RulesTable({ data }: TableProps) {
                 <Popup
                   hoverable
                   trigger={
-                    <Icon name="exchange" />
+                    <Icon name="exchange"
+                      style={{ opacity: 0.3, transition: 'opacity 0.2s' }}
+                      className="deletable-column"
+                    />
                   }
                 >
                   <Popup.Content>
@@ -143,7 +146,8 @@ export function RulesTable({ data }: TableProps) {
                 <Icon
                   name="trash"
                   onClick={() => handleOpenDeleteModal(rule)}
-                  style={{ cursor: 'pointer' }}
+                  style={{ opacity: 0.3, transition: 'opacity 0.2s', cursor: 'pointer' }}
+                  className="deletable-column"
                 />
               </Table.Cell>
             </Table.Row>

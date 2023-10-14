@@ -38,12 +38,15 @@ namespace Application.DecisionTables
 
                 try
                 {
+                    var existingRows = await _context.DecisionRows
+                        .Include(r => r.Values)
+                        .Include(r => r.ActionValues)
+                        .Where(r => r.TableId == request.DecisionTable.Id)
+                        .ToListAsync();
+
                     foreach (DecisionRow row in request.DecisionTable.Rows)
                     {
-                        var existingRow = await _context.DecisionRows
-                                                        .Include(r => r.Values)
-                                                        .Include(r => r.ActionValues)
-                                                        .FirstOrDefaultAsync(r => r.Id == row.Id);
+                        var existingRow = existingRows.Where(r => r.Id == row.Id).FirstOrDefault();
                         if (existingRow != null)
                         {
                             // Update scalar properties
@@ -112,7 +115,14 @@ namespace Application.DecisionTables
                         }
                     }
 
-                    var log = _context.ChangeTracker.DebugView.LongView;
+                    var incomingRowIds = request.DecisionTable.Rows.Select(r => r.Id).ToList();
+                    var existingRowIds = existingRows
+                        .Where(r => r.TableId == request.DecisionTable.Id)
+                        .ToList();
+
+                    _context.DecisionRows.RemoveRange(
+                        existingRowIds.Where(r => !incomingRowIds.Contains(r.Id))
+                    );
 
                     var result = await _context.SaveChangesAsync() > 0;
 

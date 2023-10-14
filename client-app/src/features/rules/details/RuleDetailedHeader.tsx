@@ -1,24 +1,4 @@
-import { observer } from 'mobx-react-lite';
-import { Header, Item, Segment, Image, Tab } from 'semantic-ui-react'
-import { Link } from 'react-router-dom';
-import { Rule } from '../../../app/models/rule';
-
-const ruleImageStyle = {
-    filter: 'brightness(30%)',
-};
-
-const ruleImageTextStyle = {
-    position: 'absolute',
-    bottom: '5%',
-    left: '5%',
-    width: '100%',
-    height: 'auto',
-    color: 'white'
-};
-
-interface Props {
-    rule: Rule
-}
+import { Tab } from 'semantic-ui-react'
 
 const panes = [
     {

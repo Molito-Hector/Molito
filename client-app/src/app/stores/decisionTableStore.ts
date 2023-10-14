@@ -102,11 +102,12 @@ export default class DecisionTableStore {
 
     addTableColumn = async (condition: Condition) => {
         this.loading = true;
-        var id = this.selectedTable!.id;
+        const id = this.selectedTable!.id;
         try {
             await agent.DecisionTables.addColumn(id, condition, 'Table');
             runInAction(() => {
-                this.selectedTable?.conditions.push(condition);
+                // this.selectedTable?.conditions.push(condition);
+                this.loadTable(id);
                 this.loading = false;
             });
         } catch (error) {
@@ -119,7 +120,7 @@ export default class DecisionTableStore {
 
     addTableActionColumn = async (action: Action) => {
         this.loading = true;
-        var id = this.selectedTable!.id;
+        const id = this.selectedTable!.id;
         try {
             await agent.DecisionTables.addActionColumn(id, action, 'Table');
             runInAction(() => {
