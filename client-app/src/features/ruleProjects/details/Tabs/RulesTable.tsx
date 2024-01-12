@@ -115,7 +115,7 @@ export function RulesTable({ data }: TableProps) {
           {sortedRules.map((rule) => (
             <Table.Row key={rule.id}>
               <Table.Cell>
-                <Link to={`/tables/${rule.id}`}>
+                <Link to={rule.type === 'Decision Table' ? `/tables/${rule.id}` : `/rules/${rule.id}`}>
                   {rule.name}
                 </Link>
               </Table.Cell>

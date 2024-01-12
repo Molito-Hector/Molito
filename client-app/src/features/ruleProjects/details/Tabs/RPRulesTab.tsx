@@ -12,7 +12,7 @@ interface Props {
 export default observer(function RPRulesTab({ ruleProject }: Props) {
     const [modalOpen, setModalOpen] = useState(false);
     const [ruleType, setRuleType] = useState('');
-    const standardRules = ruleProject.standardRules ? ruleProject.standardRules.map((rule) => ({ ...rule, type: "Standard Rule" })) : [];
+    const standardRules = ruleProject.standardRules ? ruleProject.standardRules.map((rule) => ({ ...rule, type: "AI Rule" })) : [];
     const decisionTables = ruleProject.decisionTables ? ruleProject.decisionTables.map((table) => ({ ...table, type: "Decision Table" })) : [];
     const allRules = [...standardRules, ...decisionTables];
 
@@ -33,6 +33,7 @@ export default observer(function RPRulesTab({ ruleProject }: Props) {
                     <Dropdown text='New' icon={'plus'} item>
                         <Dropdown.Menu>
                             <Dropdown.Item text='Decision Table' onClick={() => handleOpenModal('Decision Table')} />
+                            <Dropdown.Item text='AI Rule' onClick={() => handleOpenModal('AI Rule')} />
                         </Dropdown.Menu>
                     </Dropdown>
                     <CreateModal ruleProjectId={ruleProject.id} open={modalOpen} onClose={handleCloseModal} type={ruleType} />
