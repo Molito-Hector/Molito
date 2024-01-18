@@ -65,10 +65,16 @@ export const filterProperties = (properties: RuleProperty[], filterDirection: st
                 filteredProps.push(prop);
             }
         } else {
-            const subProps = prop.subProperties.filter(subProp =>
+            const concatenatedSubProps = prop.subProperties.map(subProp => ({
+                ...subProp,
+                name: `${prop.name}.${subProp.name}`
+            }));
+
+            const subPropsToFilter = concatenatedSubProps.filter(subProp =>
                 directionsToFilter.includes(subProp.direction)
             );
-            filteredProps = [...filteredProps, ...subProps];
+
+            filteredProps = [...filteredProps, ...subPropsToFilter];
         }
     });
 
